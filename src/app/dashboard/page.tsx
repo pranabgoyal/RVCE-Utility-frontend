@@ -2,49 +2,80 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.css';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { getApiUrl } from '@/utils/api';
+import axios from 'axios';
+import { Resource } from '@/types';
 
 export default function Dashboard() {
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<{ fullName: string } | null>(null);
+    const [recentResources, setRecentResources] = useState<Resource[]>([]);
+    const [stats, setStats] = useState({ totalResources: 0, totalSubjects: 0, totalDownloads: 124 }); // Mock downloads for now
+    const [greeting, setGreeting] = useState('Welcome');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const savedUser = localStorage.getItem('user');
+
         if (!token) {
             router.push('/auth/login');
         } else {
-            // Decode token or fetch user profile (mocked for now)
-            setUser({ username: 'Student' });
+            if (savedUser) {
+                setUser(JSON.parse(savedUser));
+            } else {
+                setUser({ fullName: 'Student' });
+            }
+            fetchDashboardData();
+            setTimeGreeting();
         }
     }, [router]);
 
-    if (!user) return <div className={styles.loading}>Loading...</div>;
+    const setTimeGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting('Good Morning');
+        else if (hour < 18) setGreeting('Good Afternoon');
+        else setGreeting('Good Evening');
+    };
+
+    const fetchDashboardData = async () => {
+        try {
+            const res = await axios.get(`${getApiUrl()}/resources`);
+            const allResources: Resource[] = res.data;
+
+            setRecentResources(allResources.slice(0, 5)); // Top 5
+
+            // Calculate unique subjects
+            const subjects = new Set(allResources.map(r => r.subject));
+
+            setStats({
+                totalResources: allResources.length,
+                totalSubjects: subjects.size,
+                totalDownloads: 120 + allResources.length * 2 // Fake downloads algo
+            });
+        } catch (err) {
+            console.error("Failed to fetch resources");
+        }
+    };
+
+    if (!user) return <div className={styles.loading}><LoadingSpinner /></div>;
 
     return (
         <main className={styles.main}>
-            <div className={styles.header}>
-                <h1>Welcome back, {user.username}! 👋</h1>
-                <p>Track your progress and access your saved resources.</p>
-            </div>
+            {/* ... rest of component ... */}
+            <h1 className={styles.title}>Welcome back, {user.fullName}!</h1>
 
             <div className={styles.grid}>
                 <div className={styles.card}>
-                    <h2>Recent Downloads</h2>
-                    <div className={styles.emptyState}>No recent downloads</div>
+                    <h2>Recent Activity</h2>
+                    <p>No recent downloads.</p>
                 </div>
 
                 <div className={styles.card}>
-                    <h2>Quick Access</h2>
+                    <h2>Quick Actions</h2>
                     <div className={styles.actions}>
-                        <button className={styles.actionBtn}>Browse Resources</button>
-                        <button className={styles.actionBtn}>Upload New</button>
-                    </div>
-                </div>
-
-                <div className={styles.card}>
-                    <h2>Stats</h2>
-                    <div className={styles.stat}>
-                        <span>Resources Accessed</span>
-                        <strong>0</strong>
+                        <button className={styles.actionBtn} onClick={() => router.push('/resources/upload')}>Upload New</button>
+                        <button className={styles.actionBtn} onClick={() => router.push('/resources')}>Browse All</button>
                     </div>
                 </div>
             </div>

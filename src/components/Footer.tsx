@@ -24,18 +24,18 @@ const Footer = () => {
                         <h3>Quick Links</h3>
                         <ul>
                             <li><a href="/resources">Browse Documents</a></li>
-                            <li><a href="/subjects">Subjects</a></li>
-                            <li><a href="/papers">Previous Papers</a></li>
-                            <li><a href="/lab-manuals">Lab Manuals</a></li>
+                            <li><a href="/coming-soon">Subjects</a></li>
+                            <li><a href="/coming-soon">Previous Papers</a></li>
+                            <li><a href="/coming-soon">Lab Manuals</a></li>
                         </ul>
                     </div>
                     <div className={styles.column}>
                         <h3>Support</h3>
                         <ul>
-                            <li><a href="/help">Help Center</a></li>
-                            <li><a href="/contact">Contact Us</a></li>
-                            <li><a href="/privacy">Privacy Policy</a></li>
-                            <li><a href="/terms">Terms of Use</a></li>
+                            <li><a href="/coming-soon">Help Center</a></li>
+                            <li><a href="/coming-soon">Contact Us</a></li>
+                            <li><a href="/coming-soon">Privacy Policy</a></li>
+                            <li><a href="/coming-soon">Terms of Use</a></li>
                         </ul>
                     </div>
                 </div>

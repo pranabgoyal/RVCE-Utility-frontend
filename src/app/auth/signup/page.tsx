@@ -3,53 +3,92 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import api from '@/utils/api';
 import styles from './auth.module.css';
+import Toast from '@/components/Toast';
 
 export default function Signup() {
     const router = useRouter();
     const [formData, setFormData] = useState({
-        username: '',
+        fullName: '',
         email: '',
-        password: ''
+        password: '',
+        year: '1st Year',
+        department: 'First Year'
     });
     const [error, setError] = useState('');
+    const [showToast, setShowToast] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
-            // Save token (in real app using Context/NextAuth)
-            localStorage.setItem('token', res.data.token);
+            const data = await api.signup(formData);
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
             router.push('/dashboard');
         } catch (err: any) {
             setError(err.response?.data?.msg || 'Signup failed');
+            setShowToast(true);
         }
     };
 
     return (
         <div className={styles.container}>
+            {showToast && <Toast message={error} type="error" onClose={() => setShowToast(false)} />}
             <div className={styles.card}>
                 <h1 className={styles.title}>Create Account</h1>
                 <p className={styles.subtitle}>Join EduDocs today</p>
 
-                {error && <p className={styles.error}>{error}</p>}
-
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.group}>
-                        <label>Username</label>
-                        <input type="text" name="username" onChange={handleChange} required />
+                        <label className={styles.label}>Full Name</label>
+                        <input
+                            type="text"
+                            name="fullName"
+                            placeholder="e.g. John Doe"
+                            onChange={handleChange}
+                            required
+                            className={styles.input}
+                        />
+                    </div>
+
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <label className={styles.label}>Year</label>
+                            <select name="year" value={formData.year} onChange={handleChange} className={styles.select}>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                        </div>
+                        <div className={styles.group}>
+                            <label className={styles.label}>Department</label>
+                            <select name="department" value={formData.department} onChange={handleChange} className={styles.select}>
+                                <option value="First Year">First Year (Common)</option>
+                                <option value="CSE">CSE</option>
+                                <option value="ISE">ISE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="ME">ME</option>
+                                <option value="CV">CV</option>
+                                <option value="AI&ML">AI&ML</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className={styles.group}>
+                        <label className={styles.label}>Email</label>
+                        <input className={styles.input} type="email" name="email" placeholder="student@example.com" onChange={handleChange} required />
                     </div>
                     <div className={styles.group}>
-                        <label>Email</label>
-                        <input type="email" name="email" onChange={handleChange} required />
-                    </div>
-                    <div className={styles.group}>
-                        <label>Password</label>
-                        <input type="password" name="password" onChange={handleChange} required />
+                        <label className={styles.label}>Password</label>
+                        <input className={styles.input} type="password" name="password" placeholder="••••••••" onChange={handleChange} required />
                     </div>
                     <button type="submit" className={styles.submitBtn}>Sign Up</button>
                 </form>

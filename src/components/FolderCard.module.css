@@ -1,0 +1,45 @@
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    background: var(--secondary);
+    border-color: var(--text-muted);
+}
+
+.icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    background: var(--secondary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    flex: 1;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--foreground);
+    font-weight: 500;
+}
+
+.meta {
+    margin: 4px 0 0 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}

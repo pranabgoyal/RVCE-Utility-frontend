@@ -1,0 +1,64 @@
+.container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Fallback for when gradient clip isn't perfect in light mode */
+    color: var(--primary);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.homeBtn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--foreground);
+    /* Fixed: Was white, now adapts */
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.homeBtn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    /* White on primary is always safe */
+    transform: translateY(-2px);
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}

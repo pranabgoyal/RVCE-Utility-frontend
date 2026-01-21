@@ -1,0 +1,80 @@
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    background: var(--secondary);
+    /* Slightly different shade on hover */
+}
+
+.icon {
+    font-size: 2rem;
+    background: var(--secondary);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+}
+
+.title {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    color: var(--foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meta {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.subMeta {
+    margin: 2px 0 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.actionBtn {
+    background: var(--secondary);
+    border: 1px solid var(--card-border);
+    color: var(--foreground);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.actionBtn:hover {
+    background: var(--card-bg);
+    border-color: var(--text-muted);
+}

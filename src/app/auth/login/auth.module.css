@@ -42,13 +42,13 @@
     gap: 8px;
 }
 
-.group label {
+.label {
     font-size: 0.9rem;
     color: var(--foreground);
     font-weight: 500;
 }
 
-.group input {
+.input {
     background: #18181b;
     border: 1px solid var(--card-border);
     padding: 12px;
@@ -57,9 +57,11 @@
     font-size: 1rem;
     outline: none;
     transition: border-color 0.3s;
+    width: 100%;
+    /* Ensure full width */
 }
 
-.group input:focus {
+.input:focus {
     border-color: var(--primary);
 }
 

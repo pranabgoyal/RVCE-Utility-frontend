@@ -1,8 +1,10 @@
 .footer {
-    background-color: #050507;
+    background-color: var(--secondary);
+    /* Adapts: Dark in Dark Mode, Light Grey in Light Mode */
     border-top: 1px solid var(--card-border);
     padding: 80px 10% 30px;
     margin-top: auto;
+    color: var(--foreground);
 }
 
 .content {
@@ -24,6 +26,7 @@
     font-weight: 700;
     margin-bottom: 20px;
     gap: 10px;
+    color: var(--foreground);
 }
 
 .logoIcon {
@@ -60,12 +63,14 @@
     justify-content: center;
     font-size: 1.2rem;
     transition: all 0.3s;
+    color: var(--foreground);
 }
 
 .socialIcon:hover {
     background: var(--primary);
     border-color: var(--primary);
     transform: translateY(-3px);
+    color: white;
 }
 
 .linksSection {
@@ -78,6 +83,7 @@
     font-size: 1.1rem;
     margin-bottom: 25px;
     font-weight: 600;
+    color: var(--foreground);
 }
 
 .column ul {
@@ -100,7 +106,7 @@
 }
 
 .bottomBar {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--card-border);
     padding-top: 30px;
     display: flex;
     justify-content: space-between;

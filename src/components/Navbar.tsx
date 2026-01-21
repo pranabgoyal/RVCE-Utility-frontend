@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Navbar.module.css';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
     const pathname = usePathname();
@@ -16,12 +17,13 @@ const Navbar = () => {
                 </Link>
 
                 <div className={styles.links}>
-                    <Link href="/courses" className={styles.link}>Courses</Link>
+                    <Link href="/coming-soon" className={styles.link}>Courses</Link>
                     <Link href="/resources" className={isActive('/resources') ? styles.activeLink : styles.link}>Resources</Link>
-                    <Link href="/about" className={styles.link}>About</Link>
+                    <Link href="/coming-soon" className={styles.link}>About</Link>
                 </div>
 
                 <div className={styles.auth}>
+                    <ThemeToggle />
                     <Link href="/auth/login" className={styles.loginBtn}>Log In</Link>
                     <Link href="/auth/signup" className={styles.signupBtn}>Sign Up</Link>
                 </div>
