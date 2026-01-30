@@ -10,6 +10,7 @@ interface ResourcePreviewModalProps {
     onClose: () => void;
     fileUrl: string;
     title: string;
+    resourceId: string;
     mode: 'chat' | 'quiz' | null;
     onModeChange: (mode: 'chat' | 'quiz' | null) => void;
 }
