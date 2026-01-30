@@ -45,10 +45,11 @@ export default function AIChatWindow({ resourceId }: { resourceId: string }) {
                 sender: 'ai'
             };
             setMessages(prev => [...prev, aiMsg]);
-        } catch (err) {
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.reply || "Sorry, I'm having trouble connecting right now.";
             const errorMsg: Message = {
                 id: Date.now() + 1,
-                text: "Sorry, I'm having trouble connecting right now.",
+                text: errorMessage,
                 sender: 'ai'
             };
             setMessages(prev => [...prev, errorMsg]);

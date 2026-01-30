@@ -23,13 +23,16 @@ export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
     const [score, setScore] = useState(0);
     const [showResult, setShowResult] = useState(false);
 
+    const [errorMsg, setErrorMsg] = useState("");
+
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
                 const res = await axios.post(`${getApiUrl()}/ai/quiz`, { resourceId });
                 setQuestions(res.data.quiz);
-            } catch (err) {
-                console.error("Failed to fetch quiz");
+            } catch (err: any) {
+                console.error("Failed to fetch quiz", err);
+                setErrorMsg(err.response?.data?.error || "We couldn't generate a quiz right now. Please try again later.");
             } finally {
                 setLoading(false);
             }
@@ -37,6 +40,7 @@ export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
         fetchQuiz();
     }, [resourceId]);
 
+    // ... handleAnswer ...
     const handleAnswer = (optionIndex: number) => {
         if (optionIndex === questions[currentStep].correctAnswer) {
             setScore(prev => prev + 1);
@@ -60,13 +64,13 @@ export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
         </div>
     );
 
-    if (questions.length === 0) return (
+    if (questions.length === 0 || errorMsg) return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
                 <button className={styles.closeBtn} onClick={onClose}>×</button>
                 <div className={styles.errorState}>
-                    <h3>😕 User Offline or No Quiz Generated</h3>
-                    <p>We couldn't generate a quiz right now. Please try again later.</p>
+                    <h3>😕 Error Generating Quiz</h3>
+                    <p>{errorMsg || "User Offline or No Quiz Generated"}</p>
                     <button className={styles.finishBtn} onClick={onClose}>Close</button>
                 </div>
             </div>
