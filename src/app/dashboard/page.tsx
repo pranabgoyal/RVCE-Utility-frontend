@@ -73,12 +73,12 @@ export default function Dashboard() {
 
                 <div className={styles.card}>
                     <h2>Quick Actions</h2>
-                    <div className={styles.actions}>
-                        <button className={styles.actionBtn} onClick={() => router.push('/resources/upload')}>Upload New</button>
-                        <button className={styles.actionBtn} onClick={() => router.push('/resources')}>Browse All</button>
-                    </div>
+                    <button className={styles.actionBtn} onClick={() => router.push('/resources/upload')}>Upload New</button>
+                    <button className={styles.actionBtn} onClick={() => router.push('/resources')}>Browse All</button>
+                    <button className={styles.actionBtn} onClick={() => router.push('/dashboard/pomodoro')}>Focus Timer</button>
                 </div>
             </div>
-        </main>
+        </div>
+        </main >
     );
 }
