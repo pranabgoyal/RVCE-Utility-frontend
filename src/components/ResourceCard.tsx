@@ -7,7 +7,14 @@ interface ResourceCardProps {
 }
 
 export default function ResourceCard({ resource, onPreview }: ResourceCardProps) {
-    const fullUrl = resource.fileUrl.startsWith('http') ? resource.fileUrl : `http://localhost:3000${resource.fileUrl}`;
+    const getDownloadUrl = (url: string) => {
+        if (url.startsWith('http')) return url;
+        if (typeof window !== 'undefined') {
+            return `${window.location.origin}${url}`;
+        }
+        return url;
+    };
+    const fullUrl = getDownloadUrl(resource.fileUrl);
 
     return (
         <div className={styles.card}>

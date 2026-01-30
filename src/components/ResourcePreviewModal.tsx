@@ -30,7 +30,16 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
     }, [onClose, isFullScreen]);
 
     // Construct full URL if relative
-    const fullUrl = fileUrl.startsWith('http') ? fileUrl : `http://localhost:3000${fileUrl}`;
+    // In production, we assume fileUrl is likely absolute (Cloudinary), but handle relative for local uploads
+    const getDownloadUrl = (url: string) => {
+        if (url.startsWith('http')) return url;
+        // Use window.location.origin to adapt to Vercel or Localhost dynamically
+        if (typeof window !== 'undefined') {
+            return `${window.location.origin}${url}`;
+        }
+        return url;
+    };
+    const fullUrl = getDownloadUrl(fileUrl);
 
     return (
         <div className={styles.overlay} onClick={onClose}>
@@ -73,8 +82,9 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                 </div>
                 <div className={styles.body}>
                     <div className={styles.content}>
+                        {/* Use Google Docs Viewer for reliable PDF rendering without CORS issues */}
                         <iframe
-                            src={fullUrl}
+                            src={`https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`}
                             className={styles.iframe}
                             title={title}
                         />
