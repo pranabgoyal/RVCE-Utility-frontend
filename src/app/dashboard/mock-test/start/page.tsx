@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
@@ -13,7 +13,7 @@ interface Question {
     subject: string;
 }
 
-export default function TestInterface() {
+function TestContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const subject = searchParams.get('subject') || 'Common';
@@ -138,5 +138,13 @@ export default function TestInterface() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function TestInterface() {
+    return (
+        <Suspense fallback={<div className={styles.container}><LoadingSpinner /></div>}>
+            <TestContent />
+        </Suspense>
     );
 }
