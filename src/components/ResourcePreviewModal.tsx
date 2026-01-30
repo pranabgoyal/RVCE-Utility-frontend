@@ -13,7 +13,7 @@ interface ResourcePreviewModalProps {
     resourceId?: string;
 }
 
-export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId = "mock-id" }: ResourcePreviewModalProps) {
+export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId }: ResourcePreviewModalProps) {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [showChat, setShowChat] = useState(false);
     const [showQuiz, setShowQuiz] = useState(false);
