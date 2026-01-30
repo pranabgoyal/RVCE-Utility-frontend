@@ -1,8 +1,14 @@
 .container {
     padding: 2rem;
+    padding-top: 100px;
+    /* Clear fixed navbar (70px) + spacing */
+    padding-bottom: 4rem;
+    /* Clear potential footer */
     color: var(--foreground);
     max-width: 1200px;
     margin: 0 auto;
+    min-height: 100vh;
+    /* Ensure full height */
 }
 
 .title {
@@ -64,10 +70,12 @@
     background: var(--card-bg);
     border-bottom: 1px solid var(--border);
     position: sticky;
-    top: 0;
+    top: 70px;
+    /* Stick BELOW the simple 70px Main Navbar */
     z-index: 10;
     margin-bottom: 2rem;
     border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .timer {
