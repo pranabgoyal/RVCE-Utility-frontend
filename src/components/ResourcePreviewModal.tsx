@@ -41,11 +41,10 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
     };
     const fullUrl = getDownloadUrl(fileUrl);
 
-    // Determine file type (enhanced for Cloudinary)
-    const isCloudinaryImage = fullUrl.includes('/image/upload/');
+    // Determine file type
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fullUrl);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const isPdf = /\.pdf$/i.test(fullUrl) || fullUrl.includes('pdf');
-    // Is Image if it looks like an image AND NOT a PDF
-    const isImage = (/\.(jpg|jpeg|png|gif|webp)$/i.test(fullUrl) || isCloudinaryImage) && !isPdf;
 
     // Debug Log
     console.log(`[Preview] FileURL: ${fileUrl}, FullURL: ${fullUrl}, isImage: ${isImage}, isLocal: ${fullUrl.includes('localhost')}`);
