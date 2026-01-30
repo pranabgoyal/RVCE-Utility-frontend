@@ -22,9 +22,7 @@ export default function Resources() {
     useEffect(() => {
         const fetchResources = async () => {
             try {
-                console.log('Fetching resources from:', `${getApiUrl()}/resources`);
                 const res = await axios.get(`${getApiUrl()}/resources`);
-                console.log('Fetched resources:', res.data);
                 setResources(res.data);
             } catch (err) {
                 console.error('Failed to fetch resources', err);
