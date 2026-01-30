@@ -41,9 +41,11 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
     };
     const fullUrl = getDownloadUrl(fileUrl);
 
-    // Determine file type
-    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fullUrl);
-    const isPdf = /\.pdf$/i.test(fullUrl) || fullUrl.includes('pdf'); // Cloudinary might not have extension but usually does
+    // Determine file type (enhanced for Cloudinary)
+    const isCloudinaryImage = fullUrl.includes('/image/upload/');
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fullUrl) || isCloudinaryImage;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const isPdf = /\.pdf$/i.test(fullUrl) || fullUrl.includes('pdf');
 
     // Debug Log
     console.log(`[Preview] FileURL: ${fileUrl}, FullURL: ${fullUrl}, isImage: ${isImage}, isLocal: ${fullUrl.includes('localhost')}`);
@@ -104,11 +106,19 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                             </div>
                         ) : (
                             /* Default to Google Viewer for PDFs and other docs */
-                            <iframe
-                                src={`https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`}
-                                className={styles.iframe}
-                                title={title}
-                            />
+                            <div className={styles.iframeContainer}>
+                                <iframe
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`}
+                                    className={styles.iframe}
+                                    title={title}
+                                />
+                                <div className={styles.fallbackControl}>
+                                    <span>Preview not loading?</span>
+                                    <a href={fullUrl} target="_blank" rel="noopener noreferrer" className={styles.textLink}>
+                                        Open in New Tab ↗
+                                    </a>
+                                </div>
+                            </div>
                         )}
                     </div>
                     {showChat && (
