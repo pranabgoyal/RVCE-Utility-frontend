@@ -113,9 +113,9 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                                     title={title}
                                 />
                                 <div className={styles.fallbackControl}>
-                                    <span>Preview not loading?</span>
-                                    <a href={fullUrl} target="_blank" rel="noopener noreferrer" className={styles.textLink}>
-                                        Open in New Tab ↗
+                                    <p>Preview not working?</p>
+                                    <a href={fullUrl} target="_blank" rel="noopener noreferrer" className={styles.primaryBtn}>
+                                        Open Document ↗
                                     </a>
                                 </div>
                             </div>
