@@ -4,11 +4,18 @@ import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const getBaseUrl = () => {
-    // If running on Client and Localhost, force Local Backend
-    // This fixes the issue where local dev env tries to fetch local files from Render Cloud
+    // 1. Browser: Force Localhost if running on localhost
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:5000/api';
     }
+
+    // 2. Server (SSR): Force Localhost if in Development mode
+    // This ensures that server-side content generation (like ResourceCard hrefs) uses localhost
+    if (process.env.NODE_ENV === 'development') {
+        return 'http://localhost:5000/api';
+    }
+
+    // 3. Production / Fallback
     return API_URL;
 };
 
