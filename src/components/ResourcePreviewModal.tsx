@@ -10,13 +10,13 @@ interface ResourcePreviewModalProps {
     onClose: () => void;
     fileUrl: string;
     title: string;
-    resourceId: string;
+    mode: 'chat' | 'quiz' | null;
+    onModeChange: (mode: 'chat' | 'quiz' | null) => void;
 }
 
-export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId }: ResourcePreviewModalProps) {
+export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId, mode, onModeChange }: ResourcePreviewModalProps) {
     const [isFullScreen, setIsFullScreen] = useState(false);
-    const [showChat, setShowChat] = useState(false);
-    const [showQuiz, setShowQuiz] = useState(false);
+    // showChat and showQuiz are now derived from 'mode' prop
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -51,25 +51,25 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
 
     return (
         <div className={styles.overlay} onClick={onClose}>
-            {showQuiz && <QuizModal resourceId={resourceId} onClose={() => setShowQuiz(false)} />}
+            {mode === 'quiz' && <QuizModal resourceId={resourceId} onClose={() => onModeChange(null)} />}
 
             <div
-                className={`${styles.modal} ${isFullScreen ? styles.fullScreen : ''} ${showChat ? styles.withChat : ''}`}
+                className={`${styles.modal} ${isFullScreen ? styles.fullScreen : ''} ${mode === 'chat' ? styles.withChat : ''}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className={styles.header}>
                     <h3 className={styles.title}>{title}</h3>
                     <div className={styles.actions}>
                         <button
-                            className={`${styles.actionBtn} ${showChat ? styles.active : ''}`}
-                            onClick={() => setShowChat(!showChat)}
+                            className={`${styles.actionBtn} ${mode === 'chat' ? styles.active : ''}`}
+                            onClick={() => onModeChange(mode === 'chat' ? null : 'chat')}
                             title="AI Study Buddy"
                         >
                             🤖 Chat
                         </button>
                         <button
                             className={styles.actionBtn}
-                            onClick={() => setShowQuiz(true)}
+                            onClick={() => onModeChange('quiz')} // Quiz is a modal on top, so it takes over
                             title="Generate Quiz"
                         >
                             📝 Quiz
@@ -120,7 +120,7 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                             </div>
                         )}
                     </div>
-                    {showChat && (
+                    {mode === 'chat' && (
                         <div className={styles.chatSidebar}>
                             <AIChatWindow resourceId={resourceId} />
                         </div>

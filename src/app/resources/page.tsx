@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
 import styles from './resources.module.css';
@@ -12,9 +13,20 @@ import { Resource } from '@/types';
 export default function Resources() {
     const [resources, setResources] = useState<Resource[]>([]);
     const [loading, setLoading] = useState(true);
-    const [previewFile, setPreviewFile] = useState<{ url: string, title: string, id: string } | null>(null);
+    // Removed local previewFile state in favor of URL params
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBranch, setSelectedBranch] = useState('All');
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Derived State from URL
+    const resourceIdParam = searchParams.get('resourceId');
+    const modeParam = searchParams.get('mode') as 'chat' | 'quiz' | null;
+
+    const activeResource = useMemo(() => {
+        return resources.find(r => r._id === resourceIdParam);
+    }, [resources, resourceIdParam]);
 
     // Navigation State: [] = Home, ['Sem 1'] = Sem 1, ['Sem 1', 'Math'] = Math
     const [currentPath, setCurrentPath] = useState<string[]>([]);
@@ -76,7 +88,11 @@ export default function Resources() {
                 <ResourceCard
                     key={res._id}
                     resource={res}
-                    onPreview={(url, title) => setPreviewFile({ url, title, id: res._id })}
+                    onPreview={(url, title) => {
+                        const params = new URLSearchParams(searchParams.toString());
+                        params.set('resourceId', res._id);
+                        router.push(`?${params.toString()}`);
+                    }}
                 />
             ));
         }
@@ -120,7 +136,12 @@ export default function Resources() {
                 <ResourceCard
                     key={res._id}
                     resource={res}
-                    onPreview={(url, title) => setPreviewFile({ url, title, id: res._id })}
+                    onPreview={(url, title) => {
+                        // Push to URL to open modal
+                        const params = new URLSearchParams(searchParams.toString());
+                        params.set('resourceId', res._id);
+                        router.push(`?${params.toString()}`);
+                    }}
                 />
             ));
         }
@@ -192,13 +213,26 @@ export default function Resources() {
                 </div>
             )}
 
-            {!!previewFile && (
+            {!!activeResource && (
                 <ResourcePreviewModal
-                    isOpen={!!previewFile}
-                    onClose={() => setPreviewFile(null)}
-                    fileUrl={previewFile.url}
-                    title={previewFile.title}
-                    resourceId={previewFile.id}
+                    isOpen={!!activeResource}
+                    onClose={() => {
+                        // Clear all params to close
+                        router.push('/resources');
+                    }}
+                    fileUrl={activeResource.url}
+                    title={activeResource.title}
+                    resourceId={activeResource._id}
+                    mode={modeParam}
+                    onModeChange={(newMode) => {
+                        const params = new URLSearchParams(searchParams.toString());
+                        if (newMode) {
+                            params.set('mode', newMode);
+                        } else {
+                            params.delete('mode');
+                        }
+                        router.push(`?${params.toString()}`);
+                    }}
                 />
             )}
         </main>
