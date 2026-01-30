@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import styles from './ResourcePreviewModal.module.css';
 import AIChatWindow from './AIChatWindow';
 import QuizModal from './QuizModal';
+import { getApiUrl } from '@/utils/api';
 
 interface ResourcePreviewModalProps {
-    isOpen: boolean; // Kept for prop but parent should handle conditional rendering
+    isOpen: boolean;
     onClose: () => void;
     fileUrl: string;
     title: string;
-    resourceId?: string; // Made optional for now, but should be passed
+    resourceId?: string;
 }
 
 export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId = "mock-id" }: ResourcePreviewModalProps) {
@@ -17,7 +18,6 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
     const [showChat, setShowChat] = useState(false);
     const [showQuiz, setShowQuiz] = useState(false);
 
-    // Handle ESC key to close
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -29,17 +29,21 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
         return () => window.removeEventListener('keydown', handleEsc);
     }, [onClose, isFullScreen]);
 
-    // Construct full URL if relative
-    // In production, we assume fileUrl is likely absolute (Cloudinary), but handle relative for local uploads
+    // Construct full URL
+    // If relative, point to Backend URL (not Frontend)
     const getDownloadUrl = (url: string) => {
+        if (!url) return '';
         if (url.startsWith('http')) return url;
-        // Use window.location.origin to adapt to Vercel or Localhost dynamically
-        if (typeof window !== 'undefined') {
-            return `${window.location.origin}${url}`;
-        }
-        return url;
+
+        // Remove '/api' from the API URL to get the base backend URL
+        const backendBase = getApiUrl().replace(/\/api$/, '');
+        return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
     };
     const fullUrl = getDownloadUrl(fileUrl);
+
+    // Determine file type
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fullUrl);
+    const isPdf = /\.pdf$/i.test(fullUrl) || fullUrl.includes('pdf'); // Cloudinary might not have extension but usually does
 
     return (
         <div className={styles.overlay} onClick={onClose}>
@@ -82,12 +86,19 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                 </div>
                 <div className={styles.body}>
                     <div className={styles.content}>
-                        {/* Use Google Docs Viewer for reliable PDF rendering without CORS issues */}
-                        <iframe
-                            src={`https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`}
-                            className={styles.iframe}
-                            title={title}
-                        />
+                        {isImage ? (
+                            <div className={styles.imageContainer}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={fullUrl} alt={title} className={styles.previewImage} />
+                            </div>
+                        ) : (
+                            /* Default to Google Viewer for PDFs and other docs */
+                            <iframe
+                                src={`https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`}
+                                className={styles.iframe}
+                                title={title}
+                            />
+                        )}
                     </div>
                     {showChat && (
                         <div className={styles.chatSidebar}>

@@ -7,12 +7,14 @@ interface ResourceCardProps {
 }
 
 export default function ResourceCard({ resource, onPreview }: ResourceCardProps) {
+    import { getApiUrl } from '@/utils/api';
+
     const getDownloadUrl = (url: string) => {
+        if (!url) return '';
         if (url.startsWith('http')) return url;
-        if (typeof window !== 'undefined') {
-            return `${window.location.origin}${url}`;
-        }
-        return url;
+
+        const backendBase = getApiUrl().replace(/\/api$/, '');
+        return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
     };
     const fullUrl = getDownloadUrl(resource.fileUrl);
 
