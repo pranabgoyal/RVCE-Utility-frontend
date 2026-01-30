@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
@@ -10,10 +10,9 @@ import FolderCard from '@/components/FolderCard';
 import ResourcePreviewModal from '@/components/ResourcePreviewModal';
 import { Resource } from '@/types';
 
-export default function Resources() {
+function ResourcesContent() {
     const [resources, setResources] = useState<Resource[]>([]);
     const [loading, setLoading] = useState(true);
-    // Removed local previewFile state in favor of URL params
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBranch, setSelectedBranch] = useState('All');
 
@@ -32,7 +31,13 @@ export default function Resources() {
     const [currentPath, setCurrentPath] = useState<string[]>([]);
 
     useEffect(() => {
-        const fetchResources = async () => {
+        const checkAuthAndFetch = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/auth/login');
+                return;
+            }
+
             try {
                 const res = await axios.get(`${getApiUrl()}/resources`);
                 setResources(res.data);
@@ -42,8 +47,8 @@ export default function Resources() {
                 setLoading(false);
             }
         };
-        fetchResources();
-    }, []);
+        checkAuthAndFetch();
+    }, [router]);
 
     // Filter Logic
     const filteredResources = useMemo(() => {
@@ -77,7 +82,7 @@ export default function Resources() {
 
     const resetNavigation = () => {
         setCurrentPath([]);
-        setSearchTerm(''); // Clear search when going home if desired, or keep it. Let's keep it independent.
+        setSearchTerm('');
     };
 
     const getCurrentView = () => {
@@ -220,7 +225,7 @@ export default function Resources() {
                         // Clear all params to close
                         router.push('/resources');
                     }}
-                    fileUrl={activeResource.url}
+                    fileUrl={activeResource.fileUrl}
                     title={activeResource.title}
                     resourceId={activeResource._id}
                     mode={modeParam}
@@ -236,5 +241,13 @@ export default function Resources() {
                 />
             )}
         </main>
+    );
+}
+
+export default function Resources() {
+    return (
+        <Suspense fallback={<div className={styles.loading}><LoadingSpinner /></div>}>
+            <ResourcesContent />
+        </Suspense>
     );
 }
