@@ -86,19 +86,29 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                 </div>
                 <div className={styles.body}>
                     <div className={styles.content}>
-                        {isImage ? (
-                            <div className={styles.imageContainer}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={fullUrl} alt={title} className={styles.previewImage} />
-                            </div>
-                        ) : (
-                            /* Default to Google Viewer for PDFs and other docs */
-                            <iframe
-                                src={`https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`}
-                                className={styles.iframe}
-                                title={title}
-                            />
-                        )}
+                        <div className={styles.content}>
+                            {isImage ? (
+                                <div className={styles.imageContainer}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={fullUrl} alt={title} className={styles.previewImage} />
+                                </div>
+                            ) : fullUrl.includes('localhost') || fullUrl.includes('127.0.0.1') ? (
+                                <div className={styles.errorState}>
+                                    <h3>📂 Local File - No Preview</h3>
+                                    <p>Google Viewer cannot preview files hosted on Localhost.</p>
+                                    <a href={fullUrl} target="_blank" rel="noopener noreferrer" className={styles.accentBtn}>
+                                        Open File Directly ↗️
+                                    </a>
+                                </div>
+                            ) : (
+                                /* Default to Google Viewer for public PDFs */
+                                <iframe
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`}
+                                    className={styles.iframe}
+                                    title={title}
+                                />
+                            )}
+                        </div>
                     </div>
                     {showChat && (
                         <div className={styles.chatSidebar}>
