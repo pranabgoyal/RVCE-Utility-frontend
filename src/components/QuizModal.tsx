@@ -92,17 +92,24 @@ export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
                         </div>
 
                         <div className={styles.content}>
-                            <h2 className={styles.question}>{questions[currentStep].question}</h2>
+                            <h2 className={styles.question}>
+                                {questions[currentStep]?.question || "Error: Missing Question Text"}
+                            </h2>
                             <div className={styles.options}>
-                                {questions[currentStep].options.map((option, index) => (
-                                    <button
-                                        key={index}
-                                        className={styles.optionBtn}
-                                        onClick={() => handleAnswer(index)}
-                                    >
-                                        {option}
-                                    </button>
-                                ))}
+                                {Array.isArray(questions[currentStep]?.options) ? (
+                                    questions[currentStep].options.map((option, index) => (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            className={styles.optionBtn}
+                                            onClick={() => handleAnswer(index)}
+                                        >
+                                            {option}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <p className={styles.errorText}>Error: Invalid question format.</p>
+                                )}
                             </div>
                         </div>
                     </>
