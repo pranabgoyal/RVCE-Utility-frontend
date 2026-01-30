@@ -16,7 +16,7 @@ export default function PomodoroPage() {
 
     useEffect(() => {
         // Initialize audio
-        audioRef.current = new Audio('/sounds/notification.mp3'); // We need to add this file or use a CDN
+        // audioRef.current = new Audio('/sounds/notification.mp3'); // We need to add this file or use a CDN
     }, []);
 
     useEffect(() => {
@@ -28,10 +28,10 @@ export default function PomodoroPage() {
             }, 1000);
         } else if (timeLeft === 0) {
             setIsActive(false);
-            // Play sound if available, else alert
-            if (audioRef.current) {
-                audioRef.current.play().catch(() => { });
-            }
+            // Play sound if available (TODO: Add notification.mp3)
+            // if (audioRef.current) {
+            //     audioRef.current.play().catch(() => { });
+            // }
             // alert('Timer finished!'); 
         }
 

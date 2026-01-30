@@ -38,8 +38,7 @@ export default function Signup() {
             localStorage.setItem('user', JSON.stringify(data.user));
             router.push('/dashboard');
         } catch (err: any) {
-
-            console.error('Signup Error:', err);
+            // console.error('Signup Error:', err);
             const errorMsg = err.response?.data?.msg || err.message || 'Signup failed';
             setError(errorMsg);
             setShowToast(true);
