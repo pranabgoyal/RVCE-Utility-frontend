@@ -25,6 +25,13 @@ export default function Signup() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!formData.email.endsWith('@rvce.edu.in')) {
+            setError('Please use your college email (@rvce.edu.in)');
+            setShowToast(true);
+            return;
+        }
+
         try {
             const data = await api.signup(formData);
             localStorage.setItem('token', data.token);
