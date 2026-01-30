@@ -12,7 +12,7 @@ import { Resource } from '@/types';
 export default function Resources() {
     const [resources, setResources] = useState<Resource[]>([]);
     const [loading, setLoading] = useState(true);
-    const [previewFile, setPreviewFile] = useState<{ url: string, title: string } | null>(null);
+    const [previewFile, setPreviewFile] = useState<{ url: string, title: string, id: string } | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBranch, setSelectedBranch] = useState('All');
 
@@ -76,7 +76,7 @@ export default function Resources() {
                 <ResourceCard
                     key={res._id}
                     resource={res}
-                    onPreview={(url, title) => setPreviewFile({ url, title })}
+                    onPreview={(url, title) => setPreviewFile({ url, title, id: res._id })}
                 />
             ));
         }
@@ -120,7 +120,7 @@ export default function Resources() {
                 <ResourceCard
                     key={res._id}
                     resource={res}
-                    onPreview={(url, title) => setPreviewFile({ url, title })}
+                    onPreview={(url, title) => setPreviewFile({ url, title, id: res._id })}
                 />
             ));
         }
@@ -198,6 +198,7 @@ export default function Resources() {
                     onClose={() => setPreviewFile(null)}
                     fileUrl={previewFile.url}
                     title={previewFile.title}
+                    resourceId={previewFile.id}
                 />
             )}
         </main>
