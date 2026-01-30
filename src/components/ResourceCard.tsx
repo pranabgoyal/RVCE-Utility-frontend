@@ -6,9 +6,9 @@ interface ResourceCardProps {
     onPreview: (url: string, title: string) => void;
 }
 
-export default function ResourceCard({ resource, onPreview }: ResourceCardProps) {
-    import { getApiUrl } from '@/utils/api';
+import { getApiUrl } from '@/utils/api';
 
+export default function ResourceCard({ resource, onPreview }: ResourceCardProps) {
     const getDownloadUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
