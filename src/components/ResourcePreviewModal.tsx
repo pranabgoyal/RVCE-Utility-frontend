@@ -10,7 +10,7 @@ interface ResourcePreviewModalProps {
     onClose: () => void;
     fileUrl: string;
     title: string;
-    resourceId?: string;
+    resourceId: string;
 }
 
 export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId }: ResourcePreviewModalProps) {
