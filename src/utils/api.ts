@@ -2,7 +2,10 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-export const getApiUrl = () => API_URL;
+export const getApiUrl = () => {
+    console.log('Using API URL:', API_URL);
+    return API_URL;
+};
 
 const api = {
     login: async (credentials: any) => {
