@@ -89,3 +89,32 @@
 .signupBtn:hover {
     background-color: var(--primary-hover);
 }
+
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.userName {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.logoutBtn {
+    background-color: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logoutBtn:hover {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
