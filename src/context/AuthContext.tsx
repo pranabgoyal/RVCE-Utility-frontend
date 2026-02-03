@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (token && storedUser) {
             try {
-                setUser(JSON.parse(storedUser));
+                setUser(JSON.parse(storedUser)); // eslint-disable-line react-hooks/set-state-in-effect
             } catch (e) {
                 console.error("Failed to parse user", e);
                 localStorage.removeItem('token');

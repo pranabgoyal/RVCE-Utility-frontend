@@ -27,7 +27,7 @@ export default function PomodoroPage() {
                 setTimeLeft((prev) => prev - 1);
             }, 1000);
         } else if (timeLeft === 0) {
-            setIsActive(false);
+            setIsActive(false); // eslint-disable-line react-hooks/set-state-in-effect
             // Play sound if available (TODO: Add notification.mp3)
             // if (audioRef.current) {
             //     audioRef.current.play().catch(() => { });

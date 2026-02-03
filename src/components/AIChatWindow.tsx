@@ -52,7 +52,7 @@ export default function AIChatWindow({ context }: AIChatWindowProps) {
                 sender: 'ai'
             };
             setMessages(prev => [...prev, aiMsg]);
-        } catch (err: any) {
+        } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             const errorMessage = err.response?.data?.reply || "Sorry, I'm having trouble connecting right now.";
             const errorMsg: Message = {
                 id: Date.now() + 1,

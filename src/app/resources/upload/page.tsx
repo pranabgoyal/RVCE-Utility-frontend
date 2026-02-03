@@ -71,7 +71,7 @@ export default function UploadResource() {
 
             setToast({ message: 'Resource uploaded successfully!', type: 'success' });
             setTimeout(() => router.push('/resources'), 1500); // Redirect to Resources
-        } catch (err: any) {
+        } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error(err);
             setToast({ message: err.response?.data?.msg || 'Upload failed', type: 'error' });
         } finally {

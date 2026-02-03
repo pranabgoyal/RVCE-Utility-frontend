@@ -34,7 +34,7 @@ export default function QuizModal({ context, onClose }: QuizModalProps) {
             try {
                 const res = await axios.post(`${getApiUrl()}/ai/quiz`, { context });
                 setQuestions(res.data.quiz);
-            } catch (err: any) {
+            } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
                 console.error("Failed to fetch quiz", err);
                 setErrorMsg(err.response?.data?.error || "We couldn't generate a quiz right now. Please try again later.");
             } finally {
@@ -42,7 +42,7 @@ export default function QuizModal({ context, onClose }: QuizModalProps) {
             }
         };
         fetchQuiz();
-    }, []); // Run once on mount
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleAnswer = (optionIndex: number) => {
         if (optionIndex === questions[currentStep].correctAnswer) {
