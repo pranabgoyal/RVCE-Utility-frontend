@@ -61,7 +61,7 @@
 
 .subtitle {
     font-size: 1.25rem;
-    color: var(--text-secondary, #94a3b8);
+    color: var(--text-muted);
     line-height: 1.75;
 }
 
@@ -79,7 +79,7 @@
     font-weight: 700;
     margin-bottom: 2rem;
     text-align: center;
-    color: var(--text-primary, #f1f5f9);
+    color: var(--foreground);
 }
 
 .cardBox {
@@ -94,7 +94,7 @@
 .missionText {
     font-size: 1.15rem;
     line-height: 1.8;
-    color: var(--text-secondary, #cbd5e1);
+    color: var(--text-muted);
     max-width: 800px;
     margin: 0 auto;
 }
@@ -209,14 +209,14 @@
 .name {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary, #f1f5f9);
+    color: var(--foreground);
     margin-bottom: 0.5rem;
     letter-spacing: -0.01em;
 }
 
 .role {
     font-size: 0.95rem;
-    color: var(--primary, #38bdf8);
+    color: var(--primary);
     font-weight: 600;
     margin-bottom: 1rem;
     display: block;
@@ -227,7 +227,7 @@
 .usn {
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.85rem;
-    color: var(--text-secondary, #94a3b8);
+    color: var(--text-muted);
     background: rgba(255, 255, 255, 0.05);
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
@@ -260,13 +260,13 @@
 }
 
 /* Light Mode Overrides */
+/* Light Mode Overrides for Cards/Backgrounds only */
 @media (prefers-color-scheme: light) {
 
     [data-theme='light'] .cardBox,
     [data-theme='light'] .card {
         background: rgba(255, 255, 255, 0.8);
         border-color: rgba(0, 0, 0, 0.08);
-        /* Higher contrast border */
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
@@ -276,22 +276,10 @@
 
     [data-theme='light'] .card:hover {
         background: rgba(255, 255, 255, 0.95);
-        border-color: rgba(56, 189, 248, 0.5);
-    }
-
-    [data-theme='light'] .name,
-    [data-theme='light'] .sectionTitle,
-    [data-theme='light'] .missionText {
-        color: #0f172a;
-        /* Slate 900 for high readability */
-    }
-
-    [data-theme='light'] .subtitle {
-        color: #475569;
+        border-color: var(--primary);
     }
 
     [data-theme='light'] .usn {
-        color: #475569;
         background: rgba(0, 0, 0, 0.06);
     }
 
@@ -299,7 +287,7 @@
         background: rgba(56, 189, 248, 0.15);
         border-color: rgba(56, 189, 248, 0.3);
         color: #0369a1;
-        /* Darker blue for light mode */
+        /* Keep distinct blue for badges */
     }
 }
 

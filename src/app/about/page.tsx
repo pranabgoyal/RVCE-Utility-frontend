@@ -49,7 +49,7 @@ export default function AboutPage() {
                     </p>
 
                     <div style={{ marginTop: '2.5rem' }}>
-                        <h3 className={styles.role} style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Built With</h3>
+                        <h3 className={styles.role} style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Built With</h3>
                         <div className={styles.techGrid}>
                             {techStack.map((tech) => (
                                 <span key={tech} className={styles.techBadge}>{tech}</span>
