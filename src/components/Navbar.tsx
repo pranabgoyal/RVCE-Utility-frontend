@@ -20,7 +20,7 @@ const Navbar = () => {
                     <Link href="/resources" className={isActive('/resources') ? styles.activeLink : styles.link}>Resources</Link>
                     <Link href="/dashboard/pomodoro" className={isActive('/dashboard/pomodoro') ? styles.activeLink : styles.link}>Focus Timer</Link>
                     <Link href="/dashboard/mock-test" className={isActive('/dashboard/mock-test') ? styles.activeLink : styles.link}>Mock Test</Link>
-                    <Link href="/coming-soon" className={styles.link}>About</Link>
+                    <Link href="/about" className={isActive('/about') ? styles.activeLink : styles.link}>About</Link>
                 </div>
 
                 <div className={styles.auth}>
