@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Navbar.module.css';
 import ThemeToggle from './ThemeToggle';
+import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
     const pathname = usePathname();
+    const { user, logout, isAuthenticated } = useAuth();
 
     const isActive = (path: string) => pathname === path;
 
@@ -25,8 +27,17 @@ const Navbar = () => {
 
                 <div className={styles.auth}>
                     <ThemeToggle />
-                    <Link href="/auth/login" className={styles.loginBtn}>Log In</Link>
-                    <Link href="/auth/signup" className={styles.signupBtn}>Sign Up</Link>
+                    {isAuthenticated && user ? (
+                        <div className={styles.userMenu}>
+                            <span className={styles.userName}>Hi, {user.fullName.split(' ')[0]}</span>
+                            <button onClick={logout} className={styles.logoutBtn}>Logout</button>
+                        </div>
+                    ) : (
+                        <>
+                            <Link href="/auth/login" className={styles.loginBtn}>Log In</Link>
+                            <Link href="/auth/signup" className={styles.signupBtn}>Sign Up</Link>
+                        </>
+                    )}
                 </div>
             </div>
         </nav >

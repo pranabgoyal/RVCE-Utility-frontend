@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
 import styles from './AIChatWindow.module.css';
-import LoadingSpinner from './LoadingSpinner';
 
 interface Message {
     id: number;
@@ -10,9 +9,17 @@ interface Message {
     sender: 'user' | 'ai';
 }
 
-export default function AIChatWindow({ resourceId }: { resourceId: string }) {
+interface AIChatWindowProps {
+    context: {
+        title: string;
+        subject?: string;
+        branch?: string;
+    };
+}
+
+export default function AIChatWindow({ context }: AIChatWindowProps) {
     const [messages, setMessages] = useState<Message[]>([
-        { id: 1, text: "Hi! I'm your AI Study Buddy. Ask me anything about this document!", sender: 'ai' }
+        { id: 1, text: `Hi! I'm your AI Study Buddy. Ask me anything about "${context.title}"!`, sender: 'ai' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,8 +42,8 @@ export default function AIChatWindow({ resourceId }: { resourceId: string }) {
 
         try {
             const res = await axios.post(`${getApiUrl()}/ai/chat`, {
-                resourceId,
-                message: userMsg.text
+                message: userMsg.text,
+                context: context
             });
 
             const aiMsg: Message = {

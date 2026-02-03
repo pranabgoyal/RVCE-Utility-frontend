@@ -17,7 +17,6 @@ interface ResourcePreviewModalProps {
 
 export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId, mode, onModeChange }: ResourcePreviewModalProps) {
     const [isFullScreen, setIsFullScreen] = useState(false);
-    // showChat and showQuiz are now derived from 'mode' prop
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -30,29 +29,32 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
         return () => window.removeEventListener('keydown', handleEsc);
     }, [onClose, isFullScreen]);
 
-    // Construct full URL
-    // If relative, point to Backend URL (not Frontend)
     const getDownloadUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
-
-        // Remove '/api' from the API URL to get the base backend URL
         const backendBase = getApiUrl().replace(/\/api$/, '');
         return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
     };
     const fullUrl = getDownloadUrl(fileUrl);
 
-    // Determine file type
     const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fullUrl);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const isPdf = /\.pdf$/i.test(fullUrl) || fullUrl.includes('pdf');
 
-    // Debug Log
-    console.log(`[Preview] FileURL: ${fileUrl}, FullURL: ${fullUrl}, isImage: ${isImage}, isLocal: ${fullUrl.includes('localhost')}`);
+    // Context for AI
+    const aiContext = {
+        title: title,
+        // We could infer subject/branch from file path if available, but title is a good start
+        subject: "Engineering Resource",
+        branch: "General"
+    };
 
     return (
         <div className={styles.overlay} onClick={onClose}>
-            {mode === 'quiz' && <QuizModal resourceId={resourceId} onClose={() => onModeChange(null)} />}
+            {mode === 'quiz' && (
+                <QuizModal
+                    context={aiContext}
+                    onClose={() => onModeChange(null)}
+                />
+            )}
 
             <div
                 className={`${styles.modal} ${isFullScreen ? styles.fullScreen : ''} ${mode === 'chat' ? styles.withChat : ''}`}
@@ -70,7 +72,7 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                         </button>
                         <button
                             className={styles.actionBtn}
-                            onClick={() => onModeChange('quiz')} // Quiz is a modal on top, so it takes over
+                            onClick={() => onModeChange('quiz')}
                             title="Generate Quiz"
                         >
                             📝 Quiz
@@ -105,7 +107,6 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                                 </a>
                             </div>
                         ) : (
-                            /* Default to Google Viewer for PDFs and other docs */
                             <div className={styles.iframeContainer}>
                                 <iframe
                                     src={`https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`}
@@ -123,7 +124,7 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
                     </div>
                     {mode === 'chat' && (
                         <div className={styles.chatSidebar}>
-                            <AIChatWindow resourceId={resourceId} />
+                            <AIChatWindow context={aiContext} />
                         </div>
                     )}
                 </div>

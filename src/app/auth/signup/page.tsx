@@ -1,109 +1,128 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import api from '@/utils/api';
-import styles from './auth.module.css';
-import Toast from '@/components/Toast';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { getApiUrl } from '@/utils/api';
+import styles from '../login/auth.module.css'; // Reusing login styles
+import { useAuth } from '@/context/AuthContext';
 
 export default function Signup() {
     const router = useRouter();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         fullName: '',
+        usn: '',
         email: '',
         password: '',
-        year: '1st Year',
-        department: 'First Year'
+        confirmPassword: ''
     });
     const [error, setError] = useState('');
-    const [showToast, setShowToast] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
 
-        if (!formData.email.endsWith('@rvce.edu.in')) {
-            setError('Please use your college email (@rvce.edu.in)');
-            setShowToast(true);
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
             return;
         }
 
+        setLoading(true);
         try {
-            const data = await api.signup(formData);
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            router.push('/dashboard');
+            const res = await axios.post(`${getApiUrl()}/auth/signup`, {
+                fullName: formData.fullName,
+                usn: formData.usn,
+                email: formData.email,
+                password: formData.password
+            });
+
+            // res.data.token, res.data.user
+            login(res.data.token, res.data.user);
+
         } catch (err: any) {
-            // console.error('Signup Error:', err);
-            const errorMsg = err.response?.data?.msg || err.message || 'Signup failed';
-            setError(errorMsg);
-            setShowToast(true);
+            setError(err.response?.data?.msg || 'Signup failed');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className={styles.container}>
-            {showToast && <Toast message={error} type="error" onClose={() => setShowToast(false)} />}
             <div className={styles.card}>
                 <h1 className={styles.title}>Create Account</h1>
-                <p className={styles.subtitle}>Join EduDocs today</p>
+                <p className={styles.subtitle}>Join RVCE Engineering Platform</p>
 
-                <form onSubmit={handleSubmit} className={styles.form}>
+                {error && <div className={styles.error}>{error}</div>}
+
+                <form onSubmit={onSubmit} className={styles.form}>
                     <div className={styles.group}>
-                        <label className={styles.label}>Full Name</label>
+                        <label>Full Name</label>
                         <input
                             type="text"
                             name="fullName"
-                            placeholder="e.g. John Doe"
-                            onChange={handleChange}
+                            value={formData.fullName}
+                            onChange={onChange}
                             required
-                            className={styles.input}
+                            placeholder="e.g. John Doe"
+                        />
+                    </div>
+                    <div className={styles.group}>
+                        <label>USN (University Seat Number)</label>
+                        <input
+                            type="text"
+                            name="usn"
+                            value={formData.usn}
+                            onChange={onChange}
+                            required
+                            placeholder="e.g. 1RV23CS001"
+                        />
+                    </div>
+                    <div className={styles.group}>
+                        <label>Email Address</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={onChange}
+                            required
+                            placeholder="john@rvce.edu.in"
+                        />
+                    </div>
+                    <div className={styles.group}>
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={onChange}
+                            required
+                            placeholder="Minimum 6 characters"
+                        />
+                    </div>
+                    <div className={styles.group}>
+                        <label>Confirm Password</label>
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={onChange}
+                            required
+                            placeholder="Re-enter password"
                         />
                     </div>
 
-                    <div className={styles.row}>
-                        <div className={styles.group}>
-                            <label className={styles.label}>Year</label>
-                            <select name="year" value={formData.year} onChange={handleChange} className={styles.select}>
-                                <option value="1st Year">1st Year</option>
-                                <option value="2nd Year">2nd Year</option>
-                                <option value="3rd Year">3rd Year</option>
-                                <option value="4th Year">4th Year</option>
-                            </select>
-                        </div>
-                        <div className={styles.group}>
-                            <label className={styles.label}>Department</label>
-                            <select name="department" value={formData.department} onChange={handleChange} className={styles.select}>
-                                <option value="First Year">First Year (Common)</option>
-                                <option value="CSE">CSE</option>
-                                <option value="ISE">ISE</option>
-                                <option value="ECE">ECE</option>
-                                <option value="EEE">EEE</option>
-                                <option value="ME">ME</option>
-                                <option value="CV">CV</option>
-                                <option value="AI&ML">AI&ML</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className={styles.group}>
-                        <label className={styles.label}>Email</label>
-                        <input className={styles.input} type="email" name="email" placeholder="student@example.com" onChange={handleChange} required />
-                    </div>
-                    <div className={styles.group}>
-                        <label className={styles.label}>Password</label>
-                        <input className={styles.input} type="password" name="password" placeholder="••••••••" onChange={handleChange} required />
-                    </div>
-                    <button type="submit" className={styles.submitBtn}>Sign Up</button>
+                    <button type="submit" className={styles.button} disabled={loading}>
+                        {loading ? 'Creating Account...' : 'Sign Up'}
+                    </button>
                 </form>
 
                 <p className={styles.footer}>
-                    Already have an account? <Link href="/auth/login" className={styles.link}>Log In</Link>
+                    Already have an account? <Link href="/auth/login">Log In</Link>
                 </p>
             </div>
         </div>

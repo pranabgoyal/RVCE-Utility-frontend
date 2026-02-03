@@ -12,11 +12,15 @@ interface Question {
 }
 
 interface QuizModalProps {
-    resourceId: string;
+    context: {
+        title: string;
+        subject?: string;
+        branch?: string;
+    };
     onClose: () => void;
 }
 
-export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
+export default function QuizModal({ context, onClose }: QuizModalProps) {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
@@ -28,7 +32,7 @@ export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
-                const res = await axios.post(`${getApiUrl()}/ai/quiz`, { resourceId });
+                const res = await axios.post(`${getApiUrl()}/ai/quiz`, { context });
                 setQuestions(res.data.quiz);
             } catch (err: any) {
                 console.error("Failed to fetch quiz", err);
@@ -38,9 +42,8 @@ export default function QuizModal({ resourceId, onClose }: QuizModalProps) {
             }
         };
         fetchQuiz();
-    }, [resourceId]);
+    }, []); // Run once on mount
 
-    // ... handleAnswer ...
     const handleAnswer = (optionIndex: number) => {
         if (optionIndex === questions[currentStep].correctAnswer) {
             setScore(prev => prev + 1);
