@@ -61,8 +61,9 @@ export default function Signup() {
 
                 <form onSubmit={onSubmit} className={styles.form}>
                     <div className={styles.group}>
-                        <label>Full Name</label>
+                        <label className={styles.label}>Full Name</label>
                         <input
+                            className={styles.input}
                             type="text"
                             name="fullName"
                             value={formData.fullName}
@@ -72,8 +73,9 @@ export default function Signup() {
                         />
                     </div>
                     <div className={styles.group}>
-                        <label>USN (University Seat Number)</label>
+                        <label className={styles.label}>USN (University Seat Number)</label>
                         <input
+                            className={styles.input}
                             type="text"
                             name="usn"
                             value={formData.usn}
@@ -83,8 +85,9 @@ export default function Signup() {
                         />
                     </div>
                     <div className={styles.group}>
-                        <label>Email Address</label>
+                        <label className={styles.label}>Email Address</label>
                         <input
+                            className={styles.input}
                             type="email"
                             name="email"
                             value={formData.email}
@@ -94,8 +97,9 @@ export default function Signup() {
                         />
                     </div>
                     <div className={styles.group}>
-                        <label>Password</label>
+                        <label className={styles.label}>Password</label>
                         <input
+                            className={styles.input}
                             type="password"
                             name="password"
                             value={formData.password}
@@ -105,8 +109,9 @@ export default function Signup() {
                         />
                     </div>
                     <div className={styles.group}>
-                        <label>Confirm Password</label>
+                        <label className={styles.label}>Confirm Password</label>
                         <input
+                            className={styles.input}
                             type="password"
                             name="confirmPassword"
                             value={formData.confirmPassword}

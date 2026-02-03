@@ -43,8 +43,9 @@ export default function Login() {
 
                 <form onSubmit={onSubmit} className={styles.form}>
                     <div className={styles.group}>
-                        <label>Email Address</label>
+                        <label className={styles.label}>Email Address</label>
                         <input
+                            className={styles.input}
                             type="email"
                             name="email"
                             value={formData.email}
@@ -54,8 +55,9 @@ export default function Login() {
                         />
                     </div>
                     <div className={styles.group}>
-                        <label>Password</label>
+                        <label className={styles.label}>Password</label>
                         <input
+                            className={styles.input}
                             type="password"
                             name="password"
                             value={formData.password}
