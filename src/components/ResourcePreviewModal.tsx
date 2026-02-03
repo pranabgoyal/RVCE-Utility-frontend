@@ -42,9 +42,9 @@ export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, 
     // Context for AI
     const aiContext = {
         title: title,
-        // We could infer subject/branch from file path if available, but title is a good start
         subject: "Engineering Resource",
-        branch: "General"
+        branch: "General",
+        fileUrl: fullUrl // passing the direct download URL
     };
 
     return (
