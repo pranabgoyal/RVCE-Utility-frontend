@@ -1,253 +1,215 @@
 'use client';
-import { useEffect, useState, useMemo, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
 import styles from './resources.module.css';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import ResourceCard from '@/components/ResourceCard';
 import FolderCard from '@/components/FolderCard';
 import ResourcePreviewModal from '@/components/ResourcePreviewModal';
-import { Resource } from '@/types';
 
-function ResourcesContent() {
-    const [resources, setResources] = useState<Resource[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedBranch, setSelectedBranch] = useState('All');
+// Types for GitHub Items
+interface GitHubItem {
+    name: string;
+    type: 'file' | 'dir';
+    path: string;
+    download_url: string | null;
+    size: number;
+}
 
+// Year Configuration
+const YEARS = [
+    { id: '1', label: '1st Year', desc: '2022 Scheme' },
+    { id: '2', label: '2nd Year', desc: '2022 Scheme' },
+    { id: '3', label: '3rd Year', desc: '2022 Scheme' },
+    { id: '4', label: '4th Year', desc: '2022 Scheme' },
+];
+
+export default function ResourcesPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Derived State from URL
+    // -- State --
+    const [selectedYear, setSelectedYear] = useState<string | null>(null);
+    const [currentPath, setCurrentPath] = useState<string>(''); // e.g. "Chemistry/Unit1"
+    const [items, setItems] = useState<GitHubItem[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    // Modal State
     const resourceIdParam = searchParams.get('resourceId');
-    const modeParam = searchParams.get('mode') as 'chat' | 'quiz' | null;
+    const [previewItem, setPreviewItem] = useState<{ url: string, name: string } | null>(null);
 
-    const activeResource = useMemo(() => {
-        return resources.find(r => r._id === resourceIdParam);
-    }, [resources, resourceIdParam]);
+    // -- Effects --
 
-    // Navigation State: [] = Home, ['Sem 1'] = Sem 1, ['Sem 1', 'Math'] = Math
-    const [currentPath, setCurrentPath] = useState<string[]>([]);
-
+    // 1. Initial Load / Auth Check
     useEffect(() => {
-        const checkAuthAndFetch = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                router.push('/auth/login');
-                return;
-            }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/auth/login');
+        }
+    }, [router]);
 
+    // 2. Fetch Data when Year or Path changes
+    useEffect(() => {
+        if (!selectedYear) {
+            setItems([]);
+            return;
+        }
+
+        const fetchData = async () => {
+            setLoading(true);
+            setError('');
             try {
-                const res = await axios.get(`${getApiUrl()}/resources`);
-                setResources(res.data);
+                // Construct API URL: /api/github/:year/:path
+                // encodeURIComponent is crucial for paths with spaces or special chars
+                const pathSegment = currentPath ? `/${currentPath}` : '';
+                const url = `${getApiUrl()}/github/${selectedYear}${pathSegment}`;
+
+                const res = await axios.get(url);
+
+                // Sort: Folders first, then Files
+                const sorted = (res.data as GitHubItem[]).sort((a, b) => {
+                    if (a.type === b.type) return a.name.localeCompare(b.name);
+                    return a.type === 'dir' ? -1 : 1;
+                });
+
+                setItems(sorted);
             } catch (err) {
-                console.error('Failed to fetch resources', err);
+                console.error('Fetch Error:', err);
+                setError('Failed to load resources. Please try again.');
             } finally {
                 setLoading(false);
             }
         };
-        checkAuthAndFetch();
-    }, [router]);
 
-    // Filter Logic
-    const filteredResources = useMemo(() => {
-        return resources.filter(res => {
-            const matchesBranch = selectedBranch === 'All' || res.branch === selectedBranch;
-            const matchesSearch = res.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                res.subject.toLowerCase().includes(searchTerm.toLowerCase());
-            return matchesBranch && matchesSearch;
-        });
-    }, [resources, selectedBranch, searchTerm]);
+        fetchData();
+    }, [selectedYear, currentPath]);
 
-    // Grouping Logic (Only for Folder View)
-    const groupedData = useMemo(() => {
-        const data: Record<string, Record<string, Resource[]>> = {};
-        filteredResources.forEach(res => {
-            if (!data[res.semester]) data[res.semester] = {};
-            if (!data[res.semester][res.subject]) data[res.semester][res.subject] = [];
-            data[res.semester][res.subject].push(res);
-        });
-        return data;
-    }, [filteredResources]);
+    // -- Handlers --
 
-    // Navigation Handlers
-    const enterFolder = (name: string) => {
-        setCurrentPath([...currentPath, name]);
+    const handleYearSelect = (yearId: string) => {
+        setSelectedYear(yearId);
+        setCurrentPath(''); // Reset path when switching years
     };
 
-    const navigateToBreadcrumb = (index: number) => {
-        setCurrentPath(currentPath.slice(0, index + 1));
+    const handleItemClick = (item: GitHubItem) => {
+        if (item.type === 'dir') {
+            // Navigate into folder (update path)
+            // GitHub paths are full like "Chemistry/Unit 1", so we can just use item.path? 
+            // Actually item.path is the full path from repo root. perfect.
+            setCurrentPath(item.path);
+        } else {
+            // Open File Preview
+            if (item.download_url) {
+                setPreviewItem({ url: item.download_url, name: item.name });
+            }
+        }
     };
 
-    const resetNavigation = () => {
-        setCurrentPath([]);
-        setSearchTerm('');
+    const handleBreadcrumbClick = (index: number, parts: string[]) => {
+        // parts = ['Chemistry', 'Unit1']
+        // index = 0 -> 'Chemistry'
+        const newPath = parts.slice(0, index + 1).join('/');
+        setCurrentPath(newPath);
     };
 
-    const getCurrentView = () => {
-        // 1. Search Mode: Flat List
-        if (searchTerm) {
-            if (filteredResources.length === 0) return <div className={styles.empty}>No matching results found.</div>;
-            return filteredResources.map(res => (
-                <ResourceCard
-                    key={res._id}
-                    resource={res}
-                    onPreview={(url, title) => {
-                        const params = new URLSearchParams(searchParams.toString());
-                        params.set('resourceId', res._id);
-                        router.push(`?${params.toString()}`);
-                    }}
-                />
-            ));
-        }
-
-        // 2. Folder Mode
-        if (currentPath.length === 0) {
-            // Level 0: Semesters
-            const semesters = Object.keys(groupedData).sort();
-            if (semesters.length === 0) return <div className={styles.empty}>No resources found for this filter.</div>;
-
-            return semesters.map(sem => (
-                <FolderCard
-                    key={sem}
-                    label={sem}
-                    type="semester"
-                    onClick={() => enterFolder(sem)}
-                />
-            ));
-        }
-
-        const [selectedSem, selectedSub] = currentPath;
-
-        if (currentPath.length === 1) {
-            // Level 1: Subjects
-            const subjects = groupedData[selectedSem] ? Object.keys(groupedData[selectedSem]).sort() : [];
-            if (subjects.length === 0) return <div className={styles.empty}>Folder is empty.</div>;
-
-            return subjects.map(sub => (
-                <FolderCard
-                    key={sub}
-                    label={sub}
-                    type="subject"
-                    onClick={() => enterFolder(sub)}
-                />
-            ));
-        }
-
-        if (currentPath.length === 2 && groupedData[selectedSem] && groupedData[selectedSem][selectedSub]) {
-            // Level 2: Files
-            return groupedData[selectedSem][selectedSub].map(res => (
-                <ResourceCard
-                    key={res._id}
-                    resource={res}
-                    onPreview={(url, title) => {
-                        // Push to URL to open modal
-                        const params = new URLSearchParams(searchParams.toString());
-                        params.set('resourceId', res._id);
-                        router.push(`?${params.toString()}`);
-                    }}
-                />
-            ));
-        }
-
-        return <div className={styles.empty}>No items found.</div>;
+    const handleHomeClick = () => {
+        setSelectedYear(null);
+        setCurrentPath('');
     };
 
+    const handleRootClick = () => {
+        setCurrentPath('');
+    };
+
+    // -- Render Helpers --
+
+    const renderBreadcrumbs = () => {
+        if (!selectedYear) return null;
+
+        const parts = currentPath.split('/').filter(Boolean);
+
+        return (
+            <nav className={styles.breadcrumbs}>
+                <span className={styles.breadcrumbLink} onClick={handleHomeClick}>Home</span>
+                <span className={styles.separator}>/</span>
+                <span
+                    className={currentPath === '' ? styles.activeBreadcrumb : styles.breadcrumbLink}
+                    onClick={handleRootClick}
+                >
+                    {YEARS.find(y => y.id === selectedYear)?.label}
+                </span>
+                {parts.map((part, index) => (
+                    <span key={index} className={styles.breadcrumbItem}>
+                        <span className={styles.separator}>/</span>
+                        <span
+                            className={index === parts.length - 1 ? styles.activeBreadcrumb : styles.breadcrumbLink}
+                            onClick={() => handleBreadcrumbClick(index, parts)}
+                        >
+                            {decodeURIComponent(part)}
+                        </span>
+                    </span>
+                ))}
+            </nav>
+        );
+    };
+
+    // -- Main Render --
     return (
         <main className={styles.main}>
             <div className={styles.header}>
                 <div className={styles.headerTop}>
-                    <h1>Browse Resources</h1>
-                    <div className={styles.controls}>
-                        <div className={styles.searchWrapper}>
-                            <span className={styles.searchIcon}>🔍</span>
-                            <input
-                                type="text"
-                                placeholder="Search by title or subject..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className={styles.searchInput}
-                            />
-                        </div>
-                        <select
-                            value={selectedBranch}
-                            onChange={(e) => setSelectedBranch(e.target.value)}
-                            className={styles.branchSelect}
-                        >
-                            <option value="All">All Branches</option>
-                            <option value="CSE">CSE</option>
-                            <option value="ISE">ISE</option>
-                            <option value="ECE">ECE</option>
-                            <option value="EEE">EEE</option>
-                            <option value="ME">ME</option>
-                            <option value="CV">CV</option>
-                            <option value="AI&ML">AI&ML</option>
-                        </select>
-                    </div>
+                    <h1>Engineering Resources</h1>
+                    <p className={styles.subtitle}>Curated from GitHub Repositories</p>
                 </div>
-
-                {!searchTerm && (
-                    <nav className={styles.breadcrumbs}>
-                        <span
-                            className={currentPath.length === 0 ? styles.activeBreadcrumb : styles.breadcrumb}
-                            onClick={resetNavigation}
-                        >
-                            Home
-                        </span>
-                        {currentPath.map((item, index) => (
-                            <span key={item} className={styles.breadcrumbItem}>
-                                <span className={styles.separator}>/</span>
-                                <span
-                                    className={index === currentPath.length - 1 ? styles.activeBreadcrumb : styles.breadcrumb}
-                                    onClick={() => navigateToBreadcrumb(index)}
-                                >
-                                    {item}
-                                </span>
-                            </span>
-                        ))}
-                    </nav>
-                )}
+                {renderBreadcrumbs()}
             </div>
 
             {loading ? (
-                <div className={styles.loading}><LoadingSpinner /></div>
+                <div className={styles.loadingContainer}><LoadingSpinner /></div>
+            ) : error ? (
+                <div className={styles.error}>{error}</div>
             ) : (
                 <div className={styles.grid}>
-                    {getCurrentView()}
+                    {/* Level 0: Year Selection */}
+                    {!selectedYear && YEARS.map(year => (
+                        <FolderCard
+                            key={year.id}
+                            label={year.label}
+                            type="semester" // Reusing styling
+                            onClick={() => handleYearSelect(year.id)}
+                        />
+                    ))}
+
+                    {/* Level 1+: File/Folder List */}
+                    {selectedYear && items.length === 0 && (
+                        <div className={styles.emptyState}>This folder is empty.</div>
+                    )}
+
+                    {selectedYear && items.map(item => (
+                        <FolderCard
+                            key={item.path}
+                            label={item.name}
+                            type={item.type === 'dir' ? 'subject' : 'file'} // Visual distinction
+                            onClick={() => handleItemClick(item)}
+                        />
+                    ))}
                 </div>
             )}
 
-            {!!activeResource && (
+            {/* Preview Modal */}
+            {previewItem && (
                 <ResourcePreviewModal
-                    isOpen={!!activeResource}
-                    onClose={() => {
-                        // Clear all params to close
-                        router.push('/resources');
-                    }}
-                    fileUrl={activeResource.fileUrl}
-                    title={activeResource.title}
-                    resourceId={activeResource._id}
-                    mode={modeParam}
-                    onModeChange={(newMode) => {
-                        const params = new URLSearchParams(searchParams.toString());
-                        if (newMode) {
-                            params.set('mode', newMode);
-                        } else {
-                            params.delete('mode');
-                        }
-                        router.push(`?${params.toString()}`);
-                    }}
+                    isOpen={!!previewItem}
+                    onClose={() => setPreviewItem(null)}
+                    fileUrl={previewItem.url}
+                    title={previewItem.name}
+                    resourceId="github-resource" // Dummy ID
+                    mode={null}
+                    onModeChange={() => { }} // No AI/Quiz mode for raw files yet
                 />
             )}
         </main>
-    );
-}
-
-export default function Resources() {
-    return (
-        <Suspense fallback={<div className={styles.loading}><LoadingSpinner /></div>}>
-            <ResourcesContent />
-        </Suspense>
     );
 }
