@@ -15,7 +15,20 @@ interface GitHubItem {
     type: 'file' | 'dir';
     path: string;
     download_url: string | null;
-    size: number;
+    size?: number;
+}
+
+// Types for User Uploads
+interface UserResource {
+    _id: string;
+    title: string;
+    description: string;
+    subject: string;
+    year: string;
+    branch: string;
+    fileUrl: string;
+    fileType: string;
+    createdAt: string;
 }
 
 // Year Configuration
@@ -31,19 +44,24 @@ function ResourcesContent() {
     const searchParams = useSearchParams();
 
     // -- State --
+    const [activeTab, setActiveTab] = useState<'curated' | 'community'>('curated');
+
+    // Curated (GitHub) State
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
-    const [currentPath, setCurrentPath] = useState<string>(''); // e.g. "Chemistry/Unit1"
+    const [currentPath, setCurrentPath] = useState<string>('');
     const [items, setItems] = useState<GitHubItem[]>([]);
+
+    // Community (User) State
+    const [userResources, setUserResources] = useState<UserResource[]>([]);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     // Modal State
-    const resourceIdParam = searchParams.get('resourceId');
     const [previewItem, setPreviewItem] = useState<{ url: string, name: string } | null>(null);
 
     // -- Effects --
 
-    // 1. Initial Load / Auth Check
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -51,66 +69,78 @@ function ResourcesContent() {
         }
     }, [router]);
 
-    // 2. Fetch Data when Year or Path changes
+    // Fetch GitHub Data
     useEffect(() => {
-        if (!selectedYear) {
-            setItems([]);
-            return;
-        }
-
-        const fetchData = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                // Construct API URL: /api/github/:year/:path
-                // encodeURIComponent is crucial for paths with spaces or special chars
-                const pathSegment = currentPath ? `/${currentPath}` : '';
-                const url = `${getApiUrl()}/github/${selectedYear}${pathSegment}`;
-
-                const res = await axios.get(url);
-
-                // Sort: Folders first, then Files
-                const sorted = (res.data as GitHubItem[]).sort((a, b) => {
-                    if (a.type === b.type) return a.name.localeCompare(b.name);
-                    return a.type === 'dir' ? -1 : 1;
-                });
-
-                setItems(sorted);
-            } catch (err) {
-                console.error('Fetch Error:', err);
-                setError('Failed to load resources. Please try again.');
-            } finally {
-                setLoading(false);
+        if (activeTab === 'curated') {
+            if (!selectedYear) {
+                setItems([]);
+                return;
             }
-        };
+            const fetchGitHub = async () => {
+                setLoading(true);
+                setError('');
+                try {
+                    const pathSegment = currentPath ? `/${currentPath}` : '';
+                    const url = `${getApiUrl()}/github/${selectedYear}${pathSegment}`;
+                    const res = await axios.get(url);
+                    const sorted = (res.data as GitHubItem[]).sort((a, b) => {
+                        if (a.type === b.type) return a.name.localeCompare(b.name);
+                        return a.type === 'dir' ? -1 : 1;
+                    });
+                    setItems(sorted);
+                } catch (err) {
+                    console.error('Fetch Error:', err);
+                    setError('Failed to load resources.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchGitHub();
+        }
+    }, [selectedYear, currentPath, activeTab]);
 
-        fetchData();
-    }, [selectedYear, currentPath]);
+    // Fetch Community Data
+    useEffect(() => {
+        if (activeTab === 'community') {
+            const fetchCommunity = async () => {
+                setLoading(true);
+                try {
+                    const res = await axios.get(`${getApiUrl()}/upload`);
+                    setUserResources(res.data);
+                } catch (err) {
+                    console.error(err);
+                    setError('Failed to load community resources');
+                } finally {
+                    setLoading(false);
+                }
+            }
+            fetchCommunity();
+        }
+    }, [activeTab]);
+
 
     // -- Handlers --
 
     const handleYearSelect = (yearId: string) => {
         setSelectedYear(yearId);
-        setCurrentPath(''); // Reset path when switching years
+        setCurrentPath('');
     };
 
     const handleItemClick = (item: GitHubItem) => {
         if (item.type === 'dir') {
-            // Navigate into folder (update path)
-            // GitHub paths are full like "Chemistry/Unit 1", so we can just use item.path? 
-            // Actually item.path is the full path from repo root. perfect.
             setCurrentPath(item.path);
         } else {
-            // Open File Preview
             if (item.download_url) {
                 setPreviewItem({ url: item.download_url, name: item.name });
             }
         }
     };
 
+    const handleUserResourceClick = (res: UserResource) => {
+        setPreviewItem({ url: res.fileUrl, name: res.title });
+    };
+
     const handleBreadcrumbClick = (index: number, parts: string[]) => {
-        // parts = ['Chemistry', 'Unit1']
-        // index = 0 -> 'Chemistry'
         const newPath = parts.slice(0, index + 1).join('/');
         setCurrentPath(newPath);
     };
@@ -120,34 +150,22 @@ function ResourcesContent() {
         setCurrentPath('');
     };
 
-    const handleRootClick = () => {
-        setCurrentPath('');
-    };
-
     // -- Render Helpers --
 
     const renderBreadcrumbs = () => {
-        if (!selectedYear) return null;
-
+        if (activeTab !== 'curated' || !selectedYear) return null;
         const parts = currentPath.split('/').filter(Boolean);
-
         return (
             <nav className={styles.breadcrumbs}>
                 <span className={styles.breadcrumbLink} onClick={handleHomeClick}>Home</span>
                 <span className={styles.separator}>/</span>
-                <span
-                    className={currentPath === '' ? styles.activeBreadcrumb : styles.breadcrumbLink}
-                    onClick={handleRootClick}
-                >
+                <span className={currentPath === '' ? styles.activeBreadcrumb : styles.breadcrumbLink} onClick={() => setCurrentPath('')}>
                     {YEARS.find(y => y.id === selectedYear)?.label}
                 </span>
                 {parts.map((part, index) => (
                     <span key={index} className={styles.breadcrumbItem}>
                         <span className={styles.separator}>/</span>
-                        <span
-                            className={index === parts.length - 1 ? styles.activeBreadcrumb : styles.breadcrumbLink}
-                            onClick={() => handleBreadcrumbClick(index, parts)}
-                        >
+                        <span className={index === parts.length - 1 ? styles.activeBreadcrumb : styles.breadcrumbLink} onClick={() => handleBreadcrumbClick(index, parts)}>
                             {decodeURIComponent(part)}
                         </span>
                     </span>
@@ -156,46 +174,83 @@ function ResourcesContent() {
         );
     };
 
-    // -- Main Render --
     return (
         <main className={styles.main}>
+            {/* Header & Tabs */}
             <div className={styles.header}>
                 <div className={styles.headerTop}>
                     <h1>Engineering Resources</h1>
-                    <p className={styles.subtitle}>Curated from GitHub Repositories</p>
+                    <button className={styles.uploadBtn} onClick={() => router.push('/resources/upload')}>+ Upload Content</button>
                 </div>
+
+                <div className={styles.tabs}>
+                    <button
+                        className={`${styles.tab} ${activeTab === 'curated' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('curated')}
+                    >
+                        📚 Curated (GitHub)
+                    </button>
+                    <button
+                        className={`${styles.tab} ${activeTab === 'community' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('community')}
+                    >
+                        👥 Community Uploads
+                    </button>
+                </div>
+
                 {renderBreadcrumbs()}
             </div>
 
-            {loading ? (
-                <div className={styles.loadingContainer}><LoadingSpinner /></div>
-            ) : error ? (
-                <div className={styles.error}>{error}</div>
-            ) : (
-                <div className={styles.grid}>
-                    {/* Level 0: Year Selection */}
-                    {!selectedYear && YEARS.map(year => (
-                        <FolderCard
-                            key={year.id}
-                            label={year.label}
-                            type="semester" // Reusing styling
-                            onClick={() => handleYearSelect(year.id)}
-                        />
-                    ))}
+            {loading && <div className={styles.loadingContainer}><LoadingSpinner /></div>}
 
-                    {/* Level 1+: File/Folder List */}
-                    {selectedYear && items.length === 0 && (
-                        <div className={styles.emptyState}>This folder is empty.</div>
+            {!loading && (
+                <div className={styles.contentArea}>
+                    {/* CURATED TAB */}
+                    {activeTab === 'curated' && (
+                        <div className={styles.grid}>
+                            {!selectedYear && YEARS.map(year => (
+                                <FolderCard
+                                    key={year.id}
+                                    label={year.label}
+                                    type="semester"
+                                    onClick={() => handleYearSelect(year.id)}
+                                />
+                            ))}
+
+                            {selectedYear && items.length === 0 && !error && (
+                                <div className={styles.emptyState}>This folder is empty.</div>
+                            )}
+
+                            {selectedYear && items.map(item => (
+                                <FolderCard
+                                    key={item.path}
+                                    label={item.name}
+                                    type={item.type === 'dir' ? 'subject' : 'file'}
+                                    onClick={() => handleItemClick(item)}
+                                />
+                            ))}
+                        </div>
                     )}
 
-                    {selectedYear && items.map(item => (
-                        <FolderCard
-                            key={item.path}
-                            label={item.name}
-                            type={item.type === 'dir' ? 'subject' : 'file'} // Visual distinction
-                            onClick={() => handleItemClick(item)}
-                        />
-                    ))}
+                    {/* COMMUNITY TAB */}
+                    {activeTab === 'community' && (
+                        <div className={styles.communityGrid}>
+                            {userResources.length === 0 ? (
+                                <div className={styles.emptyState}>No community uploads yet. Be the first!</div>
+                            ) : (
+                                userResources.map(res => (
+                                    <div key={res._id} className={styles.resourceCard} onClick={() => handleUserResourceClick(res)}>
+                                        <div className={styles.icon}>📄</div>
+                                        <div className={styles.details}>
+                                            <h3>{res.title}</h3>
+                                            <p>{res.subject} • {res.branch}</p>
+                                            <span className={styles.meta}>Variable {res.year} Year</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -206,9 +261,9 @@ function ResourcesContent() {
                     onClose={() => setPreviewItem(null)}
                     fileUrl={previewItem.url}
                     title={previewItem.name}
-                    resourceId="github-resource" // Dummy ID
+                    resourceId="resource"
                     mode={null}
-                    onModeChange={() => { }} // No AI/Quiz mode for raw files yet
+                    onModeChange={() => { }}
                 />
             )}
         </main>
