@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
@@ -25,7 +25,7 @@ const YEARS = [
     { id: '4', label: '4th Year', desc: '2022 Scheme' },
 ];
 
-export default function ResourcesPage() {
+function ResourcesContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -211,5 +211,13 @@ export default function ResourcesPage() {
                 />
             )}
         </main>
+    );
+}
+
+export default function ResourcesPage() {
+    return (
+        <Suspense fallback={<div className={styles.loadingContainer}><LoadingSpinner /></div>}>
+            <ResourcesContent />
+        </Suspense>
     );
 }
