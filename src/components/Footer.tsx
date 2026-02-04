@@ -29,15 +29,7 @@ const Footer = () => {
                             <li><a href="/coming-soon">Lab Manuals</a></li>
                         </ul>
                     </div>
-                    <div className={styles.column}>
-                        <h3>Support</h3>
-                        <ul>
-                            <li><a href="/coming-soon">Help Center</a></li>
-                            <li><a href="/coming-soon">Contact Us</a></li>
-                            <li><a href="/coming-soon">Privacy Policy</a></li>
-                            <li><a href="/coming-soon">Terms of Use</a></li>
-                        </ul>
-                    </div>
+
                 </div>
             </div>
 
