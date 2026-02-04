@@ -229,10 +229,17 @@ function ResourcesContent() {
                     community: prev.community.filter(res => res._id !== resourceId)
                 }));
             }
-        } catch (err: unknown) {
+        } catch (err: any) {
             console.error('Delete Error:', err);
-            const errorMessage = err instanceof Error ? err.message : 'Unknown Error';
-            alert(`Failed to delete: ${errorMessage}`);
+            const status = err.response?.status;
+            const backendMsg = err.response?.data?.msg || err.message || 'Unknown Error';
+
+            if (status === 401) {
+                alert(`Session expired or unauthorized: ${backendMsg}. Please log in again.`);
+                // Optional: router.push('/auth/login');
+            } else {
+                alert(`Failed to delete: ${backendMsg}`);
+            }
         } finally {
             setLoading(false);
         }
