@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { getApiUrl } from '@/utils/api';
+import { useAuth } from '@/context/AuthContext';
 import styles from './resources.module.css';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import FolderCard from '@/components/FolderCard';
@@ -28,6 +29,7 @@ interface UserResource {
     branch: string;
     fileUrl: string;
     fileType: string;
+    uploadedBy: string;
     createdAt: string;
 }
 
@@ -42,6 +44,7 @@ const YEARS = [
 function ResourcesContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { user } = useAuth();
 
     // -- State --
     const [activeTab, setActiveTab] = useState<'curated' | 'community'>('curated');
@@ -206,6 +209,35 @@ function ResourcesContent() {
         setCurrentPath('');
     };
 
+    const handleDeleteResource = async (e: React.MouseEvent, resourceId: string) => {
+        e.stopPropagation(); // Prevent opening the resource
+        if (!confirm('Are you sure you want to delete this resource?')) return;
+
+        setLoading(true);
+        try {
+            await axios.delete(`${getApiUrl()}/upload/${resourceId}`, {
+                headers: { 'x-auth-token': localStorage.getItem('token') || '' }
+            });
+
+            // Remove from state
+            setUserResources(prev => prev.filter(res => res._id !== resourceId));
+
+            // Update search results if in search mode
+            if (isSearchMode) {
+                setSearchResults(prev => ({
+                    ...prev,
+                    community: prev.community.filter(res => res._id !== resourceId)
+                }));
+            }
+        } catch (err: unknown) {
+            console.error('Delete Error:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown Error';
+            alert(`Failed to delete: ${errorMessage}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // -- Render Helpers --
 
     const renderBreadcrumbs = () => {
@@ -297,6 +329,15 @@ function ResourcesContent() {
                                                 <p>{res.subject} • {res.branch}</p>
                                                 <span className={styles.meta}>Variable {res.year} Year</span>
                                             </div>
+                                            {user && user.id === res.uploadedBy && (
+                                                <button
+                                                    className={styles.deleteBtn}
+                                                    onClick={(e) => handleDeleteResource(e, res._id)}
+                                                    title="Delete Resource"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -353,6 +394,15 @@ function ResourcesContent() {
                                             <p>{res.subject} • {res.branch}</p>
                                             <span className={styles.meta}>Variable {res.year} Year</span>
                                         </div>
+                                        {user && user.id === res.uploadedBy && (
+                                            <button
+                                                className={styles.deleteBtn}
+                                                onClick={(e) => handleDeleteResource(e, res._id)}
+                                                title="Delete Resource"
+                                            >
+                                                🗑️
+                                            </button>
+                                        )}
                                     </div>
                                 ))
                             )}
