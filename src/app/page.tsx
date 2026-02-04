@@ -56,16 +56,16 @@ export default function Home() {
         <div className={styles.heroVisual}>
           <div className={styles.visualCard}>
             <div className={styles.visualHeader}>
-              <span>📄 notes.pdf</span>
+              <span>🎓 EduDocs Platform</span>
             </div>
             <div className={styles.visualList}>
               <div className={styles.visualItem}>
                 <div className={styles.icon}>📚</div>
                 <div>
-                  <div className={styles.itemTitle}>Data Structures</div>
-                  <div className={styles.itemSub}>Complete Notes • 2nd Year</div>
+                  <div className={styles.itemTitle}>Engineering Resources</div>
+                  <div className={styles.itemSub}>Organized • Verified • Free</div>
                 </div>
-                <span className={styles.badgeGreen}>PDF</span>
+                <span className={styles.badgeGreen}>HUB</span>
               </div>
             </div>
           </div>
