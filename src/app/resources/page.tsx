@@ -37,7 +37,6 @@ const YEARS = [
     { id: '2', label: '2nd Year', desc: '2022 Scheme' },
     { id: '3', label: '3rd Year', desc: '2022 Scheme' },
     { id: '4', label: '4th Year', desc: '2022 Scheme' },
-    { id: 'mock-papers', label: 'Mock Papers', desc: 'AI & ML' },
 ];
 
 function ResourcesContent() {
