@@ -58,7 +58,7 @@ export default function QuizModal({ context, onClose }: QuizModalProps) {
 
     if (loading) return (
         <div className={styles.overlay}>
-            <div className={styles.modal}>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.loadingState}>
                     <LoadingSpinner />
                     <p>Generating Quiz with AI...</p>
@@ -69,7 +69,7 @@ export default function QuizModal({ context, onClose }: QuizModalProps) {
 
     if (questions.length === 0 || errorMsg) return (
         <div className={styles.overlay}>
-            <div className={styles.modal}>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <button className={styles.closeBtn} onClick={onClose}>×</button>
                 <div className={styles.errorState}>
                     <h3>😕 Error Generating Quiz</h3>
@@ -82,7 +82,7 @@ export default function QuizModal({ context, onClose }: QuizModalProps) {
 
     return (
         <div className={styles.overlay}>
-            <div className={styles.modal}>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <button className={styles.closeBtn} onClick={onClose}>×</button>
 
                 {!showResult ? (
