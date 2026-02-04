@@ -5,15 +5,14 @@ interface Contributor {
     name: string;
     usn: string;
     initials: string;
-    role: string;
 }
 
 const contributors: Contributor[] = [
-    { name: 'Isiri', usn: '1RV24CI042', initials: 'IS', role: 'Full Stack Developer' },
-    { name: 'Arnav', usn: '1RV24CI022', initials: 'AR', role: 'Full Stack Developer' },
-    { name: 'Aryan', usn: '1RV24CI024', initials: 'AY', role: 'Full Stack Developer' },
-    { name: 'Aditya', usn: '1RV24CI013', initials: 'AD', role: 'Backend Engineer' },
-    { name: 'Aarav', usn: '1RVCI148', initials: 'AA', role: 'Frontend Engineer' },
+    { name: 'Isiri', usn: '1RV24CI042', initials: 'IS' },
+    { name: 'Arnav', usn: '1RV24CI022', initials: 'AR' },
+    { name: 'Aryan', usn: '1RV24CI024', initials: 'AY' },
+    { name: 'Aditya', usn: '1RV24CI013', initials: 'AD' },
+    { name: 'Aarav', usn: '1RVCI148', initials: 'AA' },
 ];
 
 
@@ -53,7 +52,6 @@ export default function AboutPage() {
                                 {member.initials}
                             </div>
                             <h3 className={styles.name}>{member.name}</h3>
-                            <span className={styles.role}>{member.role}</span>
                             <span className={styles.usn}>{member.usn}</span>
                         </div>
                     ))}
