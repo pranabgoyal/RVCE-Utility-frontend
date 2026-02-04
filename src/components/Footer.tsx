@@ -24,9 +24,9 @@ const Footer = () => {
                         <h3>Quick Links</h3>
                         <ul>
                             <li><a href="/resources">Browse Documents</a></li>
-                            <li><a href="/coming-soon">Subjects</a></li>
-                            <li><a href="/coming-soon">Previous Papers</a></li>
-                            <li><a href="/coming-soon">Lab Manuals</a></li>
+                            <li><a href="/resources?category=Notes">Subjects</a></li>
+                            <li><a href="/resources?category=Paper">Previous Papers</a></li>
+                            <li><a href="/resources?category=Lab Manual">Lab Manuals</a></li>
                         </ul>
                     </div>
 
