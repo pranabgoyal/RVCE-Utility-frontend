@@ -276,7 +276,7 @@ function ResourcesContent() {
                         className={`${styles.tab} ${activeTab === 'curated' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('curated')}
                     >
-                        📚 Curated (GitHub)
+                        📚 Curated Resources
                     </button>
                     <button
                         className={`${styles.tab} ${activeTab === 'community' ? styles.activeTab : ''}`}
@@ -302,7 +302,7 @@ function ResourcesContent() {
                         {/* GitHub Matches */}
                         {searchResults.github.length > 0 && (
                             <div className={styles.resultSection}>
-                                <h3>📚 From Curated (GitHub)</h3>
+                                <h3>📚 From Curated Resources</h3>
                                 <div className={styles.grid}>
                                     {searchResults.github.map((item, idx) => (
                                         <FolderCard
