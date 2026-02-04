@@ -16,16 +16,7 @@ const contributors: Contributor[] = [
     { name: 'Aarav', usn: '1RVCI148', initials: 'AA', role: 'Frontend Engineer' },
 ];
 
-const techStack = [
-    'Next.js 16',
-    'React 19',
-    'TypeScript',
-    'Node.js',
-    'Express',
-    'MongoDB',
-    'Gemini AI',
-    'Supabase'
-];
+
 
 export default function AboutPage() {
     return (
@@ -48,14 +39,7 @@ export default function AboutPage() {
                         the learning experience.
                     </p>
 
-                    <div style={{ marginTop: '2.5rem' }}>
-                        <h3 className={styles.role} style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Built With</h3>
-                        <div className={styles.techGrid}>
-                            {techStack.map((tech) => (
-                                <span key={tech} className={styles.techBadge}>{tech}</span>
-                            ))}
-                        </div>
-                    </div>
+
                 </div>
             </section>
 
