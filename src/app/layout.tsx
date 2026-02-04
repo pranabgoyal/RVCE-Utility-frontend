@@ -29,6 +29,7 @@ export const metadata: Metadata = {
 import { ThemeProvider } from "@/context/ThemeContext";
 
 import { AuthProvider } from "@/context/AuthContext";
+import { TimerProvider } from "@/context/TimerContext";
 
 export default function RootLayout({
   children,
@@ -40,9 +41,11 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning={true}>
         <ThemeProvider>
           <AuthProvider>
-            <Navbar />
-            {children}
-            <Footer />
+            <TimerProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </TimerProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

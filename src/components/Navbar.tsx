@@ -4,12 +4,14 @@ import { usePathname } from 'next/navigation';
 import styles from './Navbar.module.css';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
+import { useTimer } from '@/context/TimerContext';
 
 const Navbar = () => {
     const pathname = usePathname();
     const { user, logout, isAuthenticated } = useAuth();
+    const { timeLeft, isActive, formatTime } = useTimer();
 
-    const isActive = (path: string) => pathname === path;
+    const isActiveLink = (path: string) => pathname === path;
 
     return (
         <nav className={styles.navbar}>
@@ -19,10 +21,12 @@ const Navbar = () => {
                 </Link>
 
                 <div className={styles.links}>
-                    <Link href="/dashboard" className={isActive('/dashboard') ? styles.activeLink : styles.link}>Home</Link>
-                    <Link href="/resources" className={isActive('/resources') ? styles.activeLink : styles.link}>Resources</Link>
-                    <Link href="/dashboard/pomodoro" className={isActive('/dashboard/pomodoro') ? styles.activeLink : styles.link}>Focus Timer</Link>
-                    <Link href="/about" className={isActive('/about') ? styles.activeLink : styles.link}>About</Link>
+                    <Link href="/dashboard" className={isActiveLink('/dashboard') ? styles.activeLink : styles.link}>Home</Link>
+                    <Link href="/resources" className={isActiveLink('/resources') ? styles.activeLink : styles.link}>Resources</Link>
+                    <Link href="/dashboard/pomodoro" className={isActiveLink('/dashboard/pomodoro') ? styles.activeLink : styles.link}>
+                        {isActive ? `⏳ ${formatTime(timeLeft)}` : 'Focus Timer'}
+                    </Link>
+                    <Link href="/about" className={isActiveLink('/about') ? styles.activeLink : styles.link}>About</Link>
                 </div>
 
                 <div className={styles.auth}>
