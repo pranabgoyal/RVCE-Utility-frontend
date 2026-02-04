@@ -60,6 +60,7 @@ function ResourcesContent() {
 
     // Modal State
     const [previewItem, setPreviewItem] = useState<{ url: string, name: string } | null>(null);
+    const [aiMode, setAiMode] = useState<'chat' | 'quiz' | null>(null);
 
     // -- Effects --
 
@@ -133,12 +134,14 @@ function ResourcesContent() {
         } else {
             if (item.download_url) {
                 setPreviewItem({ url: item.download_url, name: item.name });
+                setAiMode(null); // Reset AI mode on new item
             }
         }
     };
 
     const handleUserResourceClick = (res: UserResource) => {
         setPreviewItem({ url: res.fileUrl, name: res.title });
+        setAiMode(null); // Reset AI mode on new item
     };
 
     const handleBreadcrumbClick = (index: number, parts: string[]) => {
@@ -259,12 +262,15 @@ function ResourcesContent() {
             {previewItem && (
                 <ResourcePreviewModal
                     isOpen={!!previewItem}
-                    onClose={() => setPreviewItem(null)}
+                    onClose={() => {
+                        setPreviewItem(null);
+                        setAiMode(null);
+                    }}
                     fileUrl={previewItem.url}
                     title={previewItem.name}
                     resourceId="resource"
-                    mode={null}
-                    onModeChange={() => { }}
+                    mode={aiMode}
+                    onModeChange={setAiMode}
                 />
             )}
         </main>
