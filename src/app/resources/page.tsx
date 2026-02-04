@@ -90,9 +90,10 @@ function ResourcesContent() {
                         return a.type === 'dir' ? -1 : 1;
                     });
                     setItems(sorted);
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error('Fetch Error:', err);
-                    setError(`Failed to load: ${err.message || 'Unknown Error'}`);
+                    const errorMessage = err instanceof Error ? err.message : 'Unknown Error';
+                    setError(`Failed to load: ${errorMessage}`);
                 } finally {
                     setLoading(false);
                 }
@@ -109,9 +110,10 @@ function ResourcesContent() {
                 try {
                     const res = await axios.get(`${getApiUrl()}/upload`);
                     setUserResources(res.data);
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error(err);
-                    setError(`Failed to load community resources: ${err.message}`);
+                    const errorMessage = err instanceof Error ? err.message : 'Unknown Error';
+                    setError(`Failed to load community resources: ${errorMessage}`);
                 } finally {
                     setLoading(false);
                 }
@@ -261,14 +263,12 @@ function ResourcesContent() {
             {/* Preview Modal */}
             {previewItem && (
                 <ResourcePreviewModal
-                    isOpen={!!previewItem}
                     onClose={() => {
                         setPreviewItem(null);
                         setAiMode(null);
                     }}
                     fileUrl={previewItem.url}
                     title={previewItem.name}
-                    resourceId="resource"
                     mode={aiMode}
                     onModeChange={setAiMode}
                 />

@@ -24,11 +24,11 @@ export const getApiUrl = () => {
 };
 
 const api = {
-    login: async (credentials: any) => {
+    login: async (credentials: { email: string; password: string }) => {
         const response = await axios.post(`${getBaseUrl()}/auth/login`, credentials);
         return response.data;
     },
-    signup: async (userData: any) => {
+    signup: async (userData: { fullName: string; email: string; password: string; year: string; department: string }) => {
         const response = await axios.post(`${getBaseUrl()}/auth/signup`, userData);
         return response.data;
     }

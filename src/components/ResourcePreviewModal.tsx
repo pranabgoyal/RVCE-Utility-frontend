@@ -6,16 +6,14 @@ import QuizModal from './QuizModal';
 import { getApiUrl } from '@/utils/api';
 
 interface ResourcePreviewModalProps {
-    isOpen: boolean;
     onClose: () => void;
     fileUrl: string;
     title: string;
-    resourceId: string;
     mode: 'chat' | 'quiz' | null;
     onModeChange: (mode: 'chat' | 'quiz' | null) => void;
 }
 
-export default function ResourcePreviewModal({ isOpen, onClose, fileUrl, title, resourceId, mode, onModeChange }: ResourcePreviewModalProps) {
+export default function ResourcePreviewModal({ onClose, fileUrl, title, mode, onModeChange }: ResourcePreviewModalProps) {
     const [isFullScreen, setIsFullScreen] = useState(false);
 
     useEffect(() => {
