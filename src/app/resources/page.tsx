@@ -61,6 +61,11 @@ function ResourcesContent() {
     const [previewItem, setPreviewItem] = useState<{ url: string, name: string } | null>(null);
     const [aiMode, setAiMode] = useState<'chat' | 'quiz' | null>(null);
 
+    // Search State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchMode, setIsSearchMode] = useState(false);
+    const [searchResults, setSearchResults] = useState<{ github: GitHubItem[], community: UserResource[] }>({ github: [], community: [] });
+
     // -- Effects --
 
     useEffect(() => {
@@ -70,9 +75,55 @@ function ResourcesContent() {
         }
     }, [router]);
 
-    // Fetch GitHub Data
+    // Handle Search Params
     useEffect(() => {
-        if (activeTab === 'curated') {
+        const query = searchParams.get('search');
+        if (query) {
+            setSearchQuery(query);
+            setIsSearchMode(true);
+            performSearch(query);
+        } else {
+            setIsSearchMode(false);
+            setSearchQuery('');
+        }
+    }, [searchParams]);
+
+    const performSearch = async (query: string) => {
+        setLoading(true);
+        setError('');
+        try {
+            // 1. Fetch GitHub Search Results
+            const githubRes = await axios.get(`${getApiUrl()}/github/search?q=${encodeURIComponent(query)}`);
+
+            // 2. Fetch Community Uploads (if not already loaded, though we can fetch fresh)
+            const communityRes = await axios.get(`${getApiUrl()}/upload`);
+            const communityAll = communityRes.data as UserResource[];
+
+            // Filter Community Results Client-Side (title, subject, description)
+            const lowerQ = query.toLowerCase();
+            const communityMatches = communityAll.filter(item =>
+                item.title.toLowerCase().includes(lowerQ) ||
+                item.subject.toLowerCase().includes(lowerQ) ||
+                (item.description && item.description.toLowerCase().includes(lowerQ))
+            );
+
+            setSearchResults({
+                github: githubRes.data,
+                community: communityMatches
+            });
+
+        } catch (err: unknown) {
+            console.error('Search Error:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown Error';
+            setError(`Search failed: ${errorMessage}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch GitHub Data (Browse Mode)
+    useEffect(() => {
+        if (!isSearchMode && activeTab === 'curated') {
             if (!selectedYear) {
                 setItems([]);
                 return;
@@ -99,11 +150,11 @@ function ResourcesContent() {
             };
             fetchGitHub();
         }
-    }, [selectedYear, currentPath, activeTab]);
+    }, [selectedYear, currentPath, activeTab, isSearchMode]);
 
-    // Fetch Community Data
+    // Fetch Community Data (Browse Mode)
     useEffect(() => {
-        if (activeTab === 'community') {
+        if (!isSearchMode && activeTab === 'community') {
             const fetchCommunity = async () => {
                 setLoading(true);
                 try {
@@ -119,7 +170,7 @@ function ResourcesContent() {
             }
             fetchCommunity();
         }
-    }, [activeTab]);
+    }, [activeTab, isSearchMode]);
 
 
     // -- Handlers --
@@ -208,7 +259,58 @@ function ResourcesContent() {
 
             {loading && <div className={styles.loadingContainer}><LoadingSpinner /></div>}
 
-            {!loading && (
+            {!loading && isSearchMode ? (
+                <div className={styles.contentArea}>
+                    <div className={styles.searchHeader}>
+                        <h2>results for "{searchQuery}"</h2>
+                        <button className={styles.clearSearchBtn} onClick={() => router.push('/resources')}>Clear Search</button>
+                    </div>
+
+                    <div className={styles.searchResults}>
+                        {/* GitHub Matches */}
+                        {searchResults.github.length > 0 && (
+                            <div className={styles.resultSection}>
+                                <h3>📚 From Curated (GitHub)</h3>
+                                <div className={styles.grid}>
+                                    {searchResults.github.map((item, idx) => (
+                                        <FolderCard
+                                            key={`${item.path}-${idx}`}
+                                            label={item.name}
+                                            type="file" // Search only returns files for now
+                                            onClick={() => handleItemClick(item)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Community Matches */}
+                        {searchResults.community.length > 0 && (
+                            <div className={styles.resultSection}>
+                                <h3>👥 From Community</h3>
+                                <div className={styles.communityGrid}>
+                                    {searchResults.community.map(res => (
+                                        <div key={res._id} className={styles.resourceCard} onClick={() => handleUserResourceClick(res)}>
+                                            <div className={styles.icon}>📄</div>
+                                            <div className={styles.details}>
+                                                <h3>{res.title}</h3>
+                                                <p>{res.subject} • {res.branch}</p>
+                                                <span className={styles.meta}>Variable {res.year} Year</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {searchResults.github.length === 0 && searchResults.community.length === 0 && (
+                            <div className={styles.emptyState}>
+                                No results found for "{searchQuery}". Try a different keyword.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : !loading && (
                 <div className={styles.contentArea}>
                     {/* CURATED TAB */}
                     {activeTab === 'curated' && (
