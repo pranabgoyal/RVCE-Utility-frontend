@@ -21,7 +21,7 @@ const Navbar = () => {
                 </Link>
 
                 <div className={styles.links}>
-                    <Link href="/dashboard" className={isActiveLink('/dashboard') ? styles.activeLink : styles.link}>Home</Link>
+                    <Link href="/" className={isActiveLink('/') ? styles.activeLink : styles.link}>Home</Link>
                     <Link href="/resources" className={isActiveLink('/resources') ? styles.activeLink : styles.link}>Resources</Link>
                     <Link href="/dashboard/pomodoro" className={isActiveLink('/dashboard/pomodoro') ? styles.activeLink : styles.link}>
                         {isActive ? `⏳ ${formatTime(timeLeft)}` : 'Focus Timer'}
