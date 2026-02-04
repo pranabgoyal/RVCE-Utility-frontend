@@ -89,9 +89,9 @@ function ResourcesContent() {
                         return a.type === 'dir' ? -1 : 1;
                     });
                     setItems(sorted);
-                } catch (err) {
+                } catch (err: any) {
                     console.error('Fetch Error:', err);
-                    setError('Failed to load resources.');
+                    setError(`Failed to load: ${err.message || 'Unknown Error'}`);
                 } finally {
                     setLoading(false);
                 }
@@ -108,9 +108,9 @@ function ResourcesContent() {
                 try {
                     const res = await axios.get(`${getApiUrl()}/upload`);
                     setUserResources(res.data);
-                } catch (err) {
+                } catch (err: any) {
                     console.error(err);
-                    setError('Failed to load community resources');
+                    setError(`Failed to load community resources: ${err.message}`);
                 } finally {
                     setLoading(false);
                 }
