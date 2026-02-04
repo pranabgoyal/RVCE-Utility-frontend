@@ -15,12 +15,14 @@ export default function Signup() {
         usn: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        year: '1st Year',      // Default
+        department: 'CSE'      // Default
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const onSubmit = async (e: React.FormEvent) => {
@@ -38,7 +40,9 @@ export default function Signup() {
                 fullName: formData.fullName,
                 usn: formData.usn,
                 email: formData.email,
-                password: formData.password
+                password: formData.password,
+                year: formData.year,
+                department: formData.department
             });
 
             // res.data.token, res.data.user
@@ -72,6 +76,43 @@ export default function Signup() {
                             placeholder="e.g. John Doe"
                         />
                     </div>
+
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <label className={styles.label}>Year</label>
+                            <select
+                                className={styles.input}
+                                name="year"
+                                value={formData.year}
+                                onChange={onChange}
+                            >
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                        </div>
+                        <div className={styles.group}>
+                            <label className={styles.label}>Department</label>
+                            <select
+                                className={styles.input}
+                                name="department"
+                                value={formData.department}
+                                onChange={onChange}
+                            >
+                                <option value="CSE">CSE</option>
+                                <option value="ISE">ISE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="ME">ME</option>
+                                <option value="CV">CV</option>
+                                <option value="AI&ML">AI&ML</option>
+                                <option value="First Year">First Year</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div className={styles.group}>
                         <label className={styles.label}>USN (University Seat Number)</label>
                         <input
