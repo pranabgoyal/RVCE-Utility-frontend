@@ -44,7 +44,7 @@ const YEARS = [
 function ResourcesContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
 
     // -- State --
     const [activeTab, setActiveTab] = useState<'curated' | 'community'>('curated');
@@ -235,8 +235,8 @@ function ResourcesContent() {
             const backendMsg = err.response?.data?.msg || err.message || 'Unknown Error';
 
             if (status === 401) {
-                alert(`Session expired or unauthorized: ${backendMsg}. Please log in again.`);
-                // Optional: router.push('/auth/login');
+                alert(`Session expired: ${backendMsg}. Redirecting to login...`);
+                logout();
             } else {
                 alert(`Failed to delete: ${backendMsg}`);
             }
