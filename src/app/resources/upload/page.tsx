@@ -6,9 +6,11 @@ import { getApiUrl } from '@/utils/api';
 import styles from './upload.module.css';
 import Toast from '@/components/Toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAuth } from '@/context/AuthContext';
 
 export default function UploadResource() {
     const router = useRouter();
+    const { logout } = useAuth();
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
     const [formData, setFormData] = useState({
@@ -73,7 +75,17 @@ export default function UploadResource() {
             setTimeout(() => router.push('/resources'), 1500); // Redirect to Resources
         } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error(err);
-            setToast({ message: err.response?.data?.msg || 'Upload failed', type: 'error' });
+            const status = err.response?.status;
+            const msg = err.response?.data?.msg || 'Upload failed';
+
+            if (status === 401) {
+                setToast({ message: `Session expired: ${msg}`, type: 'error' });
+                setTimeout(() => {
+                    logout();
+                }, 2000);
+            } else {
+                setToast({ message: msg, type: 'error' });
+            }
         } finally {
             setLoading(false);
         }
