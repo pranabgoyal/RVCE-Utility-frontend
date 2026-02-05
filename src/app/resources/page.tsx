@@ -88,6 +88,13 @@ function ResourcesContent() {
         } else {
             setIsSearchMode(false);
             setSearchQuery('');
+
+            // Handle Year Redirect
+            const yearParam = searchParams.get('year');
+            if (yearParam && YEARS.some(y => y.id === yearParam)) {
+                setSelectedYear(yearParam);
+                setActiveTab('curated');
+            }
         }
     }, [searchParams]);
 
