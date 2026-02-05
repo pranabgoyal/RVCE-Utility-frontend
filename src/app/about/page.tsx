@@ -12,7 +12,7 @@ const contributors: Contributor[] = [
     { name: 'Arnav', usn: '1RV24CI022', initials: 'AR' },
     { name: 'Aryan', usn: '1RV24CI024', initials: 'AY' },
     { name: 'Aditya', usn: '1RV24CI013', initials: 'AD' },
-    { name: 'Aarav', usn: '1RVCI148', initials: 'AA' },
+    { name: 'Aarav', usn: '1RV24CI148', initials: 'AA' },
 ];
 
 
